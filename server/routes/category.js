@@ -1,90 +1,75 @@
 const express = require("express");
 const router = express.Router();
+const { body, validationResult } = require("express-validator");
 const Category = require("../model/Category");
 const mongoose = require("mongoose");
 const checkAuth = require("../middleware/checkAuth");
-const jwt = require("jsonwebtoken");
-
-const JWT_SECRET = process.env.JWT_SECRET || "zibrish 123";
-
-// Middleware to verify JWT
-const verifyToken = (req) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) throw new Error("Unauthorized: No token provided");
-  return jwt.verify(token, JWT_SECRET);
-};
 
 // Add Category
-router.post("/", checkAuth, async (req, res) => {
-  try {
-    const verify = verifyToken(req);
-    const newCategory = new Category({
-      _id: new mongoose.Types.ObjectId(),
-      userId: verify.userId,
-      title: req.body.title,
-      imageUrl: req.body.imageUrl,
-    });
+router.post(
+  "/",
+  checkAuth,
+  [
+    body("title").notEmpty().withMessage("Title is required"),
+    body("imageUrl").optional().isURL().withMessage("Invalid image URL"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
 
-    const result = await newCategory.save();
-    res.status(201).json({ success: false, newCategory: result });
+    try {
+      const newCategory = new Category({
+        _id: new mongoose.Types.ObjectId(),
+        title: req.body.title,
+        slug: req.body.slug,
+        imageUrl: req.body.imageUrl,
+        description: req.body.description,
+        parentId: req.body.parentId,
+        userId: req.user.userId,
+      });
+
+      const result = await newCategory.save();
+      res.status(201).json({ success: true, newCategory: result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+);
+
+// Get all categories
+router.get("/", async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.status(200).json({ success: true, categories });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// Get All Categories
-router.get("/", async (req, res) => {
+// Get categories of the logged-in user
+router.get("/my-categories", checkAuth, async (req, res) => {
   try {
-    // Verify token and ensure user is authenticated
-    const verify = await verifyToken(req);
-    if (!verify || !verify.userId) {
-      return res
-        .status(401)
-        .json({ success: false, error: "Unauthorized access" });
-    }
-
-    // Fetch categories belonging to the user
-    const categories = await Category.find({ userId: verify.userId }).select(
-      "_id userId title imageUrl"
-    );
-
-    res.status(200).json({ success: true, categoryList: categories });
+    const categories = await Category.find({ userId: req.userId });
+    res.status(200).json({ success: true, categories });
   } catch (err) {
-    console.error("Error fetching categories:", err);
+    console.error(err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// Get All Categories (Public API)
-router.get("/public", async (req, res) => {
-  try {
-    const categories = await Category.find().select("_id title imageUrl");
-
-    res.status(200).json({ success: true, categoryList: categories });
-  } catch (err) {
-    console.error("Error fetching public categories:", err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// Get Category by ID
+// Get category by ID
 router.get("/:id", async (req, res) => {
   try {
-    const verify = verifyToken(req);
-    const categoryId = req.params.id;
-
-    const category = await Category.findOne({
-      _id: categoryId,
-      userId: verify.userId,
-    }).select("_id userId title imageUrl");
-
+    const category = await Category.findById(req.params.id);
     if (!category) {
       return res
         .status(404)
         .json({ success: false, message: "Category not found" });
     }
-
     res.status(200).json({ success: true, category });
   } catch (err) {
     console.error(err);
@@ -92,43 +77,65 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Delete Category
-router.delete("/:id", checkAuth, async (req, res) => {
+// Get category by slug
+router.get("/slug/:slug", async (req, res) => {
   try {
-    const verify = verifyToken(req);
-    const result = await Category.deleteOne({
-      _id: req.params.id,
-      userId: verify.userId,
-    });
-
-    if (result.deletedCount === 0) {
+    const category = await Category.findOne({ slug: req.params.slug });
+    if (!category) {
       return res
         .status(404)
-        .json({ success: false, msg: "Category not found" });
+        .json({ success: false, message: "Category not found" });
     }
-    res.status(200).json({ success: true, msg: "Category deleted" });
+    res.status(200).json({ success: true, category });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// Update Category
 router.put("/:id", checkAuth, async (req, res) => {
   try {
-    const verify = verifyToken(req);
-    const updatedCategory = await Category.findOneAndUpdate(
-      { _id: req.params.id, userId: verify.userId },
-      { $set: { title: req.body.title, imageUrl: req.body.imageUrl } },
-      { new: true }
+    const updatedData = {
+      title: req.body.title,
+      slug: req.body.slug,
+      imageUrl: req.body.imageUrl,
+      description: req.body.description,
+      isActive: req.body.isActive,
+      parentId: req.body.parentId,
+    };
+
+    const updatedCategory = await Category.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true, runValidators: true }
     );
 
     if (!updatedCategory) {
       return res
         .status(404)
-        .json({ success: false, msg: "Category not found" });
+        .json({ success: false, message: "Category not found" });
     }
-    res.status(200).json({ success: true, updatedCategory: updatedCategory });
+
+    res.status(200).json({ success: true, category: updatedCategory });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.delete("/:id", checkAuth, async (req, res) => {
+  try {
+    const deletedCategory = await Category.findByIdAndDelete(req.params.id);
+
+    if (!deletedCategory) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Category deleted successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: err.message });

@@ -37,6 +37,9 @@ import EditJob from "../frontend/dashboard/jobs/EditJob";
 import Gallery from "../frontend/dashboard/galleries";
 import AddGallery from "../frontend/dashboard/galleries/AddGallery";
 import EditGallery from "../frontend/dashboard/galleries/EditGallery";
+import Products from "../frontend/dashboard/products";
+import AddProduct from "../frontend/dashboard/products/AddProduct";
+import EditProduct from "../frontend/dashboard/products/EditProduct";
 
 const frontendRoutes = createBrowserRouter([
   {
@@ -153,40 +156,16 @@ const frontendRoutes = createBrowserRouter([
         element: <EditCategory />
       },
       {
-        path: "blogs",
-        element: <Blog />,
+        path: "products",
+        element: <Products />
       },
       {
-        path: "blog/add",
-        element: <AddPosts/>
+        path: "add-product",
+        element: <AddProduct />
       },
       {
-        path: "edit-blog/:id",
-        element: <EditPost />
-      },
-      {
-        path: "jobs",
-        element: <Job />
-      },
-      {
-        path: "job/add",
-        element: <AddJob />
-      },
-      {
-        path: "edit-job/:id",
-        element: <EditJob />
-      },
-      {
-        path: "galleries",
-        element: <Gallery />
-      },
-      {
-        path: "gallery/add",
-        element: <AddGallery />
-      },
-      {
-        path: "edit-gallery/:id",
-        element: <EditGallery />
+        path: "edit-product/:id",
+        element: <EditProduct />
       }
     ],
   },

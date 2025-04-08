@@ -1,8 +1,17 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors"); // ← Add this line
 const app = express();
-const cors = require('cors');
+
+// Enable CORS
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 // Database connection
 mongoose
   .connect(process.env.DATABASE_URL)
@@ -15,20 +24,13 @@ mongoose.connection.on("error", (err) => {
 
 const userRoute = require("./routes/user");
 const categoryRoute = require("./routes/category");
-const blogRoute = require("./routes/blog");
-const commentRoute = require("./routes/comment");
-const jobRoute = require("./routes/job");
-const galleryRoute = require("./routes/gallery");
-// Middleware
+const productRoute = require("./routes/product");
+
 app.use(express.json());
-app.use(cors());
 
 app.use("/user", userRoute);
 app.use("/category", categoryRoute);
-app.use("/blog", blogRoute);
-app.use("/comment", commentRoute);
-app.use("/job", jobRoute);
-app.use("/gallery", galleryRoute);
+app.use("/product", productRoute);
 
 app.use("*", (req, res) => {
   res.status(404).json({

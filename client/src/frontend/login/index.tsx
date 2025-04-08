@@ -8,7 +8,6 @@ import {
   loginFormSchema,
 } from "../../utils/validation/loginFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormInputText } from "../../common/form-components/FormInputText";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -48,10 +47,9 @@ const Login = () => {
   const onSubmitHandler: SubmitHandler<loginFormInput> = async (value) => {
     try {
       const res = await login(value);
-      console.log("Login response:", res); // Log the response
 
-      if (res && res.data && res.data.accessToken) {
-        const token = res.data.accessToken;
+      if (res && res.data && res.data.token) {
+        const token = res.data.token;
 
         toast.success("You are now logged in", {
           position: "top-center",

@@ -11,6 +11,8 @@ import { useDeleteCategoryMutation, useGetAllCategoriesQuery } from "../../../re
 const Categories: React.FC = () => {
   const navigate = useNavigate();
   const { data: categoriesData, isLoading, isError } = useGetAllCategoriesQuery();
+  console.log("categoriesData: ", categoriesData);
+  
   const [deleteCategory] = useDeleteCategoryMutation();
 
   const handleDeleteClick = useCallback(async (id: string) => {
@@ -31,6 +33,11 @@ const Categories: React.FC = () => {
     {
       accessorKey: "title",
       header: "Category",
+      size: 150,
+    },
+    {
+      accessorKey: "description",
+      header: "Description",
       size: 150,
     },
     {
@@ -62,7 +69,7 @@ const Categories: React.FC = () => {
   // Ensure useMaterialReactTable is called unconditionally
   const table = useMaterialReactTable({
     columns,
-    data: categoriesData?.categoryList || [],
+    data: categoriesData?.categories || [],
     enableRowActions: true,
     positionActionsColumn: "last",
     renderTopToolbarCustomActions: () => (
