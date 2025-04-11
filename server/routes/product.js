@@ -53,10 +53,45 @@ router.post(
  */
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find()
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const sort = req.query.sort === "desc" ? -1 : 1;
+    const min = parseFloat(req.query.min) || 0;
+    const max = req.query.max
+      ? parseFloat(req.query.max)
+      : Number.MAX_SAFE_INTEGER;
+
+    const search = req.query.search || "";
+
+    const query = {
+      salePrice: { $gte: min, $lte: max },
+    };
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const products = await Product.find(query)
+      .sort({ salePrice: sort })
+      .skip(skip)
+      .limit(limit)
       .populate("categoryId")
       .populate("userId");
-    res.status(200).json({ success: true, products });
+
+    const totalCount = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    res.status(200).json({
+      success: true,
+      products,
+      totalPages,
+      productsCount: totalCount,
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

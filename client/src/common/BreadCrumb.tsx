@@ -1,33 +1,45 @@
-import { Link } from 'react-router-dom';
-import bg from '../assets/img/slider/breadcrumb-bg-1.jpg';
+import React from "react";
+import { useLocation, Link } from "react-router-dom";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
-const BreadCrumb = ({breadCrumTitle, pageName}) => {
-   const bTitle = breadCrumTitle.split(" ");
-   const remainTitle = breadCrumTitle.substr(breadCrumTitle.indexOf(' ')+1);
+export default function BreadCrumb() {
+  const location = useLocation();
+  const pathArr = location.pathname.split("/").filter(Boolean);
+
   return (
-    // <!-- breadcrumb area start -->
-    <div className="tp-page-title-area pt-180 pb-185 position-relative fix" style={{background:`url(${bg})`}}>
-        <div className="tp-custom-container">
-            <div className="row">
-                <div className="col-12">
-                    <div className="tp-page-title z-index">
-                        <h1 className="breadcrumb-title">{bTitle[0]} <span>{remainTitle}</span></h1>
-                        <div className="breadcrumb-menu">
-                            <nav className="breadcrumb-trail breadcrumbs">
-                                <ul className="trail-items">
-                                    <li className="trail-item trail-begin"><Link to="/">Home</Link>
-                                    </li>
-                                    <li className="trail-item trail-end"><span>{pageName}</span></li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    // <!-- breadcrumb area end -->
-  )
+    <nav aria-label="breadcrumb" className="my-3">
+      <ol className="breadcrumb d-flex align-items-center">
+        <li className="breadcrumb-item">
+          <Link to="/" className="text-primary text-decoration-none">
+            Home
+          </Link>
+        </li>
+        {pathArr.map((item, index) => {
+          const path = "/" + pathArr.slice(0, index + 1).join("/");
+          const isLast = index === pathArr.length - 1;
+          return (
+            <li
+              key={index}
+              className={`breadcrumb-item d-flex align-items-center ${
+                isLast ? "active text-white" : ""
+              }`}
+              aria-current={isLast ? "page" : undefined}
+            >
+              <ChevronRightIcon fontSize="small" className="mx-1 text-muted" />
+              {isLast ? (
+                <span className="text-white text-capitalize">{item}</span>
+              ) : (
+                <Link
+                  to={path}
+                  className="text-decoration-none text-capitalize text-primary"
+                >
+                  {item}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
 }
-
-export default BreadCrumb

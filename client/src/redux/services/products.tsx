@@ -4,10 +4,15 @@ import { apiSlice } from "../interceptor/apiSlice";
 export const productApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllProducts: builder.query({
-      query: () => ({
-        url: ApiRouteService.product,
-        method: "GET",
-      }),
+      query: ({ page = 1, sort = "asc", min = 0, max = "", search = "" }) => {
+        let url = `${ApiRouteService.product}?page=${page}&sort=${sort}&min=${min}`;
+        if (max !== "") url += `&max=${max}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        return {
+          url,
+          method: "GET",
+        };
+      },
       providesTags: ["Product"],
     }),
 
@@ -23,6 +28,14 @@ export const productApi = apiSlice.injectEndpoints({
     getProductById: builder.query({
       query: (id) => ({
         url: `${ApiRouteService.product}/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["Product"],
+    }),
+
+    getProductBySlug: builder.query({
+      query: (slug) => ({
+        url: `${ApiRouteService.product}/slug/${slug}`,
         method: "GET",
       }),
       providesTags: ["Product"],
@@ -52,6 +65,7 @@ export const productApi = apiSlice.injectEndpoints({
 export const { 
   useGetAllProductsQuery,
   useGetProductByIdQuery,
+  useGetProductBySlugQuery,
   useAddProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation

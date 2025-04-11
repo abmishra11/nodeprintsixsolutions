@@ -14,7 +14,27 @@ const categorySchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+  }
 );
+
+// Virtual populate for products
+categorySchema.virtual("products", {
+  ref: "Product",
+  localField: "_id",
+  foreignField: "categoryId",
+});
+
+// Auto-populate products in every find/findOne
+function autoPopulateProducts(next) {
+  this.populate("products");
+  next();
+}
+
+categorySchema.pre("find", autoPopulateProducts);
+categorySchema.pre("findOne", autoPopulateProducts);
 
 module.exports = mongoose.model("Category", categorySchema);
