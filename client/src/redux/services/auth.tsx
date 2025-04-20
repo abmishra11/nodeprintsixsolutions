@@ -10,22 +10,10 @@ export interface Login {
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     /**
-     * Checks if a user is valid.
-     * @param userKey The user key to check.
-     * @returns A Promise that resolves to the login information.
-     */
-    // checkUser: builder.mutation<Login, { userKey: string }>({
-    //   query: (userKey) => ({
-    //     url: ApiRouteService.checkUser,
-    //     method: "Get",
-    //     params: userKey,
-    //   }),
-    // }),
-    /**
      * Performs a login request.
      *
-     * @param body - The login credentials.
-     * @returns A Promise that resolves to the login response.
+     * @param body - 
+     * @returns 
      */
     login: builder.mutation<Login, Partial<Login>>({
       query: (body) => ({

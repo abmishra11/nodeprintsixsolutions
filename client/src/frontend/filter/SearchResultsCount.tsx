@@ -22,7 +22,7 @@ const SearchResultsCount: React.FC<SearchResultsCountProps> = ({ title, resultsC
     <div className="ms-2">
       <Typography variant="body1">
         <span className="text-primary">{title}:</span>{" "}
-        <span className="text-light">
+        <span color="primary.main">
           Showing {startRange}-{endRange} of {resultsCount} results
         </span>
       </Typography>

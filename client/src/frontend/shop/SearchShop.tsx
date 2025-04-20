@@ -28,7 +28,8 @@ const SearchShop: React.FC = () => {
     isLoading: productsLoading,
     isError: productsError,
   } = useGetAllProductsQuery({ page, sort, min, max, search: searchQuery });
-
+  console.log("productsData: ", productsData);
+  
   const {
     data: categoriesData,
     isLoading: categoriesLoading,
@@ -68,11 +69,11 @@ const SearchShop: React.FC = () => {
     categoriesData?.categories?.filter((c) => c.products.length > 0) || [];
 
   const filterData = {
-    title: "Shop",
+    title: `Search results for "${searchQuery}"`,
     products,
     productsCount,
     totalPages,
-    pageUrl: "/shop",
+    pageUrl: "/search",
     search: searchParams.get("search") || "",
   };
 

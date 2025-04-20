@@ -25,12 +25,14 @@ mongoose.connection.on("error", (err) => {
 const userRoute = require("./routes/user");
 const categoryRoute = require("./routes/category");
 const productRoute = require("./routes/product");
+const customerRoute = require("./routes/customer");
 
 app.use(express.json());
 
 app.use("/user", userRoute);
 app.use("/category", categoryRoute);
 app.use("/product", productRoute);
+app.use("/customer", customerRoute);
 
 app.use("*", (req, res) => {
   res.status(404).json({

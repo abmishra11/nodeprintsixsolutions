@@ -20,7 +20,7 @@ const DashboardSidebar: React.FC = () => {
     { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
     { text: "Categories", icon: <CategoryIcon />, path: "/dashboard/categories" },
     { text: "Products", icon: <ArticleIcon />, path: "/dashboard/products" },
-    { text: "Users", icon: <WorkIcon />, path: "/dashboard/jobs" },
+    { text: "Customers", icon: <WorkIcon />, path: "/dashboard/customers" },
     { text: "Gallery Images", icon: <ImageIcon />, path: "/dashboard/galleries" },
   ];
 

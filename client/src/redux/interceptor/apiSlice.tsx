@@ -48,9 +48,11 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     if (typeof args.loader === "undefined" || args.loader === true) {
       nprogress.complete(args, api);
     }
-    return api.dispatch(
-      setMessage({ status: true, type: "error", message: "Missing Field" })
-    );
+
+    return result;
+    // return api.dispatch(
+    //   setMessage({ status: true, type: "error", message: "Missing Field" })
+    // );
   } else if (result?.error?.status === 401 && api?.endpoint !== "login") {
     if (typeof args.loader === "undefined" || args.loader === true) {
       nprogress.complete(args, api);

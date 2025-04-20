@@ -50,6 +50,7 @@ const Login = () => {
 
       if (res && res.data && res.data.token) {
         const token = res.data.token;
+        const role = res.data?.role;
 
         toast.success("You are now logged in", {
           position: "top-center",
@@ -57,7 +58,13 @@ const Login = () => {
         dispatch(setToken(token));
         dispatch(setRefreshToken(res?.data?.refreshToken))
         dispatch(setCredential(res.data));
-        navigate("/dashboard");
+        if(role === "ADMIN") {
+          navigate("/dashboard");
+        }else if(role === "VENDOR"){
+          navigate("/vendor");
+        }else{
+          navigate("/customer");
+        }
       } else {
         // Handle case where token is not present
         toast.error("Login failed. Please check your credentials.", {

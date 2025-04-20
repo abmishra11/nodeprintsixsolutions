@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../frontend/homepage";
 import Layout from "./Layout";
 import About from "../frontend/about";
-import Login from "../frontend/login";
+import Login from "../frontend/login/Login";
 import Dashboard from "../frontend/dashboard";
 import ProtectedRoutes from "../utils/ProtectedRoute";
 import Logout from "./Logout";
@@ -17,6 +17,10 @@ import Shop from "../frontend/shop/Shop";
 import ProductDetailPage from "../frontend/product/ProductDetailPage";
 import CategoryShop from "../frontend/shop/CategoryShop";
 import SearchShop from "../frontend/shop/SearchShop";
+import Unauthorized from "./Unauthorized";
+import LoginComponent from "../frontend/login/LoginComponent";
+import Register from "../frontend/login/Register";
+import Customers from "../frontend/dashboard/customers";
 
 const frontendRoutes = createBrowserRouter([
   {
@@ -49,19 +53,31 @@ const frontendRoutes = createBrowserRouter([
         element: <ProductDetailPage />
       },
       {
+        path: "/login",
+        element: <LoginComponent />
+      },
+      {
+        path: "/register",
+        element: <Register />
+      },
+      {
         path: "/adminlogin",
         element: <Login />,
       },
       {
         path: "/logout",
         element: <Logout />,
+      },
+      {
+        path: "/unauthorized",
+        element: <Unauthorized />
       }
     ],
   },
   {
     path: "/dashboard",
     element: (
-      <ProtectedRoutes>
+      <ProtectedRoutes allowedRoles={['ADMIN']}>
         <DashboardLayout />
       </ProtectedRoutes>
     ),
@@ -94,7 +110,11 @@ const frontendRoutes = createBrowserRouter([
       {
         path: "edit-product/:id",
         element: <EditProduct />
-      }
+      },
+      {
+        path: "customers",
+        element: <Customers />
+      },
     ],
   },
 ]);

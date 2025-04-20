@@ -1,13 +1,24 @@
+import { ReactNode } from "react";
 import { useAppSelector } from "../redux/hooks";
 import { Navigate } from "react-router-dom";
 
-const ProtectedRoutes = ({ children }) => {
-  const user = useAppSelector((state) => state.auth.email);
+interface ProtectedRoutesProps {
+  children: ReactNode;
+  allowedRoles: string[];
+}
 
-  if (!user) {
-    return <Navigate to="/adminlogin" />;
+const ProtectedRoutes = ({ children, allowedRoles }: ProtectedRoutesProps) => {
+  const { token, email, role } = useAppSelector((state) => state.auth);
+
+  if (!token || !email) {
+    return <Navigate to="/adminlogin" replace />;
   }
-  return children;
+
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoutes;

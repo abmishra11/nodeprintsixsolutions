@@ -10,7 +10,14 @@ import { useDeleteProductMutation, useGetAllProductsQuery } from "../../../redux
 
 const Products: React.FC = () => {
   const navigate = useNavigate();
-  const { data: products, isLoading, isError } = useGetAllProductsQuery();
+  
+  const page = 1;
+  const sort = "asc";
+  const min = 0;
+  const max = ""; 
+  const search = "";
+
+  const { data: products, isLoading, isError } = useGetAllProductsQuery({page, sort, min, max, search});
 
   const [deleteCategory] = useDeleteProductMutation();
 
@@ -93,8 +100,8 @@ const Products: React.FC = () => {
   });
 
   // Return loading/error AFTER hooks are defined
-  if (isLoading) return <p>Loading categories...</p>;
-  if (isError) return <p>Error fetching categories.</p>;
+  if (isLoading) return <p>Loading products...</p>;
+  if (isError) return <p>Error fetching products.</p>;
 
   return <MaterialReactTable table={table} />;
 };
