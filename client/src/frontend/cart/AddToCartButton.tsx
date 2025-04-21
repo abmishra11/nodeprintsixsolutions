@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@mui/material";
-// import { addToCart } from "@/redux/slices/cartSlice";
-import { RootState } from "@/redux/store"; 
 import { toast } from "react-hot-toast";
+import { addToCart } from "../../redux/reducer/cart";
+import { RootState } from "../../redux/Store";
 
 type Product = {
   id: number;
   name: string;
-  price: number;
-  // Add any other product properties you need
+  salePrice: number;
+  quantity: number;
+  imageUrl?: string;
 };
 
 interface AddToCartButtonProps {
@@ -17,20 +18,24 @@ interface AddToCartButtonProps {
 }
 
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
+  
   const [addedProduct, setAddedProduct] = useState(false);
   const dispatch = useDispatch();
-  const cartItems = useSelector((state: RootState) => state.cart);
+  const cartItems = useSelector((state: RootState) => state.cart.items);
 
-  // useEffect(() => {
-  //   const productInCart = cartItems.some((item: Product) => item.id === product.id);
-  //   if (productInCart) {
-  //     setAddedProduct(true);
-  //   }
-  // }, [cartItems, product.id]);
+  useEffect(() => {
+    const productInCart = cartItems.some((item: Product) => item.id === product.id);
+    console.log("Product in cart:", productInCart);
+    console.log("Cart items:", cartItems);
+    
+    if (productInCart) {
+      setAddedProduct(true);
+    }
+  }, [cartItems, product.id]);
 
   const handleAddToCart = () => {
     if (!addedProduct) {
-      //dispatch(addToCart(product));
+      dispatch(addToCart( product ));
       toast.success("Item added successfully");
       setAddedProduct(true);
     }

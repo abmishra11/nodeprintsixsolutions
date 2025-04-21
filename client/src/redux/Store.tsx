@@ -5,7 +5,8 @@ import commonResMessage from "../redux/reducer/commonResMessage";
 import authReducer from '../redux/reducer/auth';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
 import { authPersistConfig } from "./config";
-import { AuthState } from "../redux/reducer/auth"; // Import AuthState type
+import { AuthState } from "../redux/reducer/auth"; 
+import cartReducer from '../redux/reducer/cart';
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +15,7 @@ export const store = configureStore({
     message: commonResMessage,
     // auth: authReducer,
     auth: persistReducer<AuthState>(authPersistConfig, authReducer),
-
+    cart: cartReducer, 
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -4,8 +4,8 @@ import { Card, CardContent, CardMedia, Typography, Button, IconButton, Box } fro
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SearchIcon from '@mui/icons-material/Search';
 import StarIcon from '@mui/icons-material/Star';
-// import { addToCart } from '../redux/slices/cartSlice'; // Adjust path accordingly
 import toast from 'react-hot-toast';
+import AddToCartButton from '../cart/AddToCartButton';
 
 interface ProductProps {
   product: {
@@ -24,6 +24,14 @@ interface ProductProps {
 
 const Product: React.FC<{ product: ProductProps['product'] }> = ({ product }) => {
   const dispatch = useDispatch();
+
+  const productForCart = {
+    id: product._id, 
+    name: product.title,
+    salePrice: product.salePrice,
+    quantity: 1,
+    imageUrl: product.imageUrl,
+  };
 
   const handleAddToCart = () => {
     // dispatch(addToCart(product));
@@ -78,9 +86,7 @@ const Product: React.FC<{ product: ProductProps['product'] }> = ({ product }) =>
         </Box>
 
         <Box className="d-flex justify-content-between align-items-center">
-          <Button variant="contained" color="primary" onClick={handleAddToCart}>
-            Add to Cart
-          </Button>
+          <AddToCartButton product={productForCart} />
           <Box>
             <IconButton>
               <SearchIcon />
