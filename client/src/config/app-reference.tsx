@@ -5,4 +5,5 @@ export const ApiRouteService = {
   category: "category",
   product: "product",
   customer: "customer",
+  cart: "cart",
 };
