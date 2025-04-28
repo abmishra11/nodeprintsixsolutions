@@ -1,19 +1,25 @@
 import { ApiRouteService } from "../../config/app-reference";
 import { apiSlice } from "../interceptor/apiSlice";
 
+export interface CartItem {
+  productId: string;
+  name: string;
+  salePrice: number;
+  quantity: number;
+  imageUrl: string;
+}
+
 export const cartApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getCartItems: builder.query({
-      query: () => {
-        return {
-          url: `${ApiRouteService.cart}`,
-          method: "GET",
-        };
-      },
+    getCartItems: builder.query<CartItem[], void>({
+      query: () => ({
+        url: `${ApiRouteService.cart}`,
+        method: "GET",
+      }),
       providesTags: ["Cart"],
     }),
 
-    addCartItem: builder.mutation<any, any>({
+    addCartItem: builder.mutation<CartItem, CartItem>({
       query: (data) => ({
         url: ApiRouteService.cart,
         method: "POST",
@@ -22,7 +28,7 @@ export const cartApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Cart"],
     }),
 
-    getCartItemById: builder.query({
+    getCartItemById: builder.query<CartItem, string>({
       query: (id) => ({
         url: `${ApiRouteService.cart}/${id}`,
         method: "GET",
@@ -30,7 +36,7 @@ export const cartApi = apiSlice.injectEndpoints({
       providesTags: ["Cart"],
     }),
 
-    updateCartItem: builder.mutation({
+    updateCartItem: builder.mutation<CartItem, { id: string; updatedData: CartItem }>({
       query: ({ id, updatedData }) => ({
         url: `${ApiRouteService.cart}/${id}`,
         method: "PUT",
@@ -39,7 +45,7 @@ export const cartApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Cart"],
     }),
 
-    deleteCartItem: builder.mutation({
+    deleteCartItem: builder.mutation<{ success: boolean }, number>({
       query: (id) => ({
         url: `${ApiRouteService.cart}/${id}`,
         method: "DELETE",

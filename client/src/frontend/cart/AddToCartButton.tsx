@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@mui/material";
 import { toast } from "react-hot-toast";
-import { addToCart } from "../../redux/reducer/cart";
 import { RootState } from "../../redux/Store";
+import { useAddCartItemMutation } from "../../redux/services/cart";
 
 type Product = {
-  id: number;
+  id: string;
   name: string;
   salePrice: number;
   quantity: number;
@@ -20,8 +20,10 @@ interface AddToCartButtonProps {
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
   
   const [addedProduct, setAddedProduct] = useState(false);
-  const dispatch = useDispatch();
+
   const cartItems = useSelector((state: RootState) => state.cart.items);
+
+  const [addCartItem, { isLoading }] = useAddCartItemMutation();
 
   useEffect(() => {
     const productInCart = cartItems.some((item: Product) => item.id === product.id);
@@ -33,11 +35,22 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
     }
   }, [cartItems, product.id]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!addedProduct) {
-      dispatch(addToCart( product ));
-      toast.success("Item added successfully");
-      setAddedProduct(true);
+      try {
+        await addCartItem({
+          productId: product.id.toString(), 
+          name: product.name,
+          salePrice: product.salePrice,
+          quantity: product.quantity,
+          imageUrl: product.imageUrl ?? ""
+        }).unwrap();
+        toast.success("Item added successfully");
+        setAddedProduct(true);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to add item");
+      }
     }
   };
 
