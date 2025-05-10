@@ -25,8 +25,6 @@ const cartSlice = createSlice({
       if (existingItem) {
         existingItem.quantity += action.payload.quantity;
       } else {
-        console.log("Adding new item to cart:", action.payload);
-        
         state.items.push(action.payload);
       }
     },

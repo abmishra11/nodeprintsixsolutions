@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -15,6 +15,7 @@ import {
   Box,
   InputBase,
   CircularProgress,
+  Badge,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -24,9 +25,23 @@ import {
   AccountCircle,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom"; 
-// import logo from "/public/logo.jpg"; 
+import { useSelector } from "react-redux";
+import { useCartItems } from "../../hooks/useCartItems";
 
-export default function Navbar({ categories, user, loading }) {
+export default function Navbar() {
+  const loading = false;
+  const user = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = !!user?.userId;
+  console.log("isAuthenticated", isAuthenticated);
+  const {
+    cartItems,
+    isCartLoading,
+    cartError,
+  } = useCartItems(isAuthenticated);
+  console.log("cartItems", cartItems);
+  
+  const cartCount = cartItems?.length || 0;
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchVisible, setSearchVisible] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -78,16 +93,18 @@ export default function Navbar({ categories, user, loading }) {
               <HelpOutline color="primary" />
             </IconButton>
 
-            <IconButton>
-              <ShoppingCart color="primary" />
+            <IconButton component={Link} to="/customer/cart">
+              <Badge badgeContent={cartCount} color="secondary">
+                <ShoppingCart color="primary" />
+              </Badge>
             </IconButton>
 
             {loading ? (
               <CircularProgress size={24} />
-            ) : user ? (
+            ) : isAuthenticated ? (
               <>
                 <IconButton onClick={handleMenuClick}>
-                  <Avatar alt={user.name} src={user.avatarUrl} />
+                  <Avatar alt={user?.name} src={user?.avatarUrl} />
                 </IconButton>
                 <Menu
                   anchorEl={anchorEl}

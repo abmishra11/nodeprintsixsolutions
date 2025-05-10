@@ -45,7 +45,7 @@ export const cartApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Cart"],
     }),
 
-    deleteCartItem: builder.mutation<{ success: boolean }, number>({
+    deleteCartItem: builder.mutation<{ success: boolean }, string>({
       query: (id) => ({
         url: `${ApiRouteService.cart}/${id}`,
         method: "DELETE",

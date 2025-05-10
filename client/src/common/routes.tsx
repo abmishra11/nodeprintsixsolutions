@@ -21,6 +21,7 @@ import Unauthorized from "./Unauthorized";
 import LoginComponent from "../frontend/login/LoginComponent";
 import Register from "../frontend/login/Register";
 import Customers from "../frontend/dashboard/customers";
+import Cart from "../frontend/cart/Cart";
 
 const frontendRoutes = createBrowserRouter([
   {
@@ -75,6 +76,25 @@ const frontendRoutes = createBrowserRouter([
     ],
   },
   {
+    path: "/customer",
+    element: (
+      <ProtectedRoutes allowedRoles={['USER']}>
+        <DashboardLayout />
+      </ProtectedRoutes>
+    ),
+    children: [
+      {
+        path: "/customer",
+        element: <Dashboard />,
+        index:true
+      },
+      {
+        path: "cart",
+        element: <Cart />
+      },
+    ],
+  },
+  {
     path: "/dashboard",
     element: (
       <ProtectedRoutes allowedRoles={['ADMIN']}>
@@ -114,6 +134,10 @@ const frontendRoutes = createBrowserRouter([
       {
         path: "customers",
         element: <Customers />
+      },
+      {
+        path: "cart",
+        element: <Cart />
       },
     ],
   },

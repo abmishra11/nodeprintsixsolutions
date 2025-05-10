@@ -7,6 +7,7 @@ import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import { authPersistConfig } from "./config";
 import { AuthState } from "../redux/reducer/auth"; 
 import cartReducer from '../redux/reducer/cart';
+import checkoutReducer from '../redux/reducer/checkout';
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     message: commonResMessage,
     // auth: authReducer,
     auth: persistReducer<AuthState>(authPersistConfig, authReducer),
-    cart: cartReducer, 
+    cart: cartReducer,
+    checkout: checkoutReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
