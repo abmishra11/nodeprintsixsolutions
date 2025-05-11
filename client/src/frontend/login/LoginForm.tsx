@@ -13,6 +13,8 @@ import toast from "react-hot-toast";
 import { useLoginMutation } from "../../redux/services/auth";
 import { useAppDispatch } from "../../redux/hooks";
 import { setCredential, setToken, setRefreshToken } from "../../redux/reducer/auth";
+import { migrateGuestCart } from "../../utils/migrateGuestCart";
+import { useAddCartItemMutation } from "../../redux/services/cart";
 
 type FormData = {
   email: string;
@@ -21,6 +23,8 @@ type FormData = {
 
 const LoginForm: React.FC = () => {
   const [login] = useLoginMutation();
+  const [addCartItem] = useAddCartItemMutation();
+
   const {
     register,
     handleSubmit,
@@ -48,6 +52,9 @@ const LoginForm: React.FC = () => {
         dispatch(setToken(token));
         dispatch(setRefreshToken(res?.data?.refreshToken))
         dispatch(setCredential(res.data));
+
+        // ✅ Migrate guest cart to server
+        await migrateGuestCart(addCartItem);
 
         if(role === "ADMIN") {
           navigate("/dashboard");

@@ -7,6 +7,7 @@ import { useAddCartItemMutation } from "../../redux/services/cart";
 import { addToCart } from "../../redux/reducer/cart";
 import { CartItem } from "../../types/cart";
 import { useCartItems } from "../../hooks/useCartItems";
+import { notifyGuestCartChanged } from '../../utils/guestCartEvents';
 
 type Product = {
   id: string;
@@ -74,6 +75,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
       localStorage.setItem("guest_cart", JSON.stringify(existingCart));
       toast.success("Item added to guest cart");
       setAddedProduct(true);
+      notifyGuestCartChanged();
     }
   };
 

@@ -76,23 +76,12 @@ const frontendRoutes = createBrowserRouter([
     ],
   },
   {
-    path: "/customer",
+    path: "/cart",
     element: (
       <ProtectedRoutes allowedRoles={['USER']}>
-        <DashboardLayout />
+        <Cart />
       </ProtectedRoutes>
-    ),
-    children: [
-      {
-        path: "/customer",
-        element: <Dashboard />,
-        index:true
-      },
-      {
-        path: "cart",
-        element: <Cart />
-      },
-    ],
+    )
   },
   {
     path: "/dashboard",

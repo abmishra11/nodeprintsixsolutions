@@ -11,7 +11,12 @@ const ProtectedRoutes = ({ children, allowedRoles }: ProtectedRoutesProps) => {
   const { token, email, role } = useAppSelector((state) => state.auth);
 
   if (!token || !email) {
-    return <Navigate to="/adminlogin" replace />;
+    if(allowedRoles.includes('USER')) {
+      return <Navigate to="/login" replace />;  
+    }
+    if(allowedRoles.includes('ADMIN')) {                
+      return <Navigate to="/adminlogin" replace />; 
+    }
   }
 
   if (!allowedRoles.includes(role)) {

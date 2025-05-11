@@ -93,7 +93,7 @@ export default function Navbar() {
               <HelpOutline color="primary" />
             </IconButton>
 
-            <IconButton component={Link} to="/customer/cart">
+            <IconButton component={Link} to="/cart">
               <Badge badgeContent={cartCount} color="secondary">
                 <ShoppingCart color="primary" />
               </Badge>

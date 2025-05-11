@@ -7,6 +7,7 @@ interface CartSubTotalCardProps {
 }
 
 const CartSubTotalCard: React.FC<CartSubTotalCardProps> = ({ subTotal }) => {
+
   const shipping = 10;
   const tax = 0;
   const totalPrice = (Number(subTotal) + shipping + tax).toFixed(2);
