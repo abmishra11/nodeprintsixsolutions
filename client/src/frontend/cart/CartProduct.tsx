@@ -33,10 +33,10 @@ const CartProduct: React.FC<Props> = ({ cartItem }) => {
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
-  const handleCartItemDelete = async (id: string) => {
+  const handleCartItemDelete = async (productId: string) => {
     try {
       setIsDeleting(true);
-      await deleteCartItem(id).unwrap();
+      await deleteCartItem(productId).unwrap();
       dispatch(removeFromCart(id));
       toast.success('Item removed successfully');
     } catch {
@@ -47,14 +47,14 @@ const CartProduct: React.FC<Props> = ({ cartItem }) => {
   };
 
   const handleCartQuantity = async (
-    id: string,
+    productId: string,
     updatedQuantity: number
   ) => {
     if (updatedQuantity < 1) return;
 
     try {
       setIsUpdating(true);
-      await updateCartItem({ id, updatedData: { quantity: updatedQuantity } }).unwrap();
+      await updateCartItem({ productId, updatedData: { quantity: updatedQuantity } }).unwrap();
       dispatch(updateQuantity({ id, quantity: updatedQuantity }));
     } catch {
       toast.error('Failed to update quantity');
@@ -100,7 +100,7 @@ const CartProduct: React.FC<Props> = ({ cartItem }) => {
           >
             <IconButton
               onClick={() =>
-                handleCartQuantity(cartItem.id, cartItem.quantity - 1)
+                handleCartQuantity(cartItem.productId, Number(cartItem.quantity) - 1)
               }
               aria-label="decrease"
               disabled={cartItem.quantity <= 1 || isUpdating}
@@ -112,7 +112,7 @@ const CartProduct: React.FC<Props> = ({ cartItem }) => {
             </Typography>
             <IconButton
               onClick={() =>
-                handleCartQuantity(cartItem.id, cartItem.quantity + 1)
+                handleCartQuantity(cartItem.productId, Number(cartItem.quantity) + 1)
               }
               aria-label="increase"
               disabled={isUpdating}
@@ -124,7 +124,7 @@ const CartProduct: React.FC<Props> = ({ cartItem }) => {
           <Box display="flex" alignItems="center" gap={1}>
             <Typography variant="body1">${cartItem.salePrice}</Typography>
             <IconButton
-              onClick={() => handleCartItemDelete(cartItem.id)}
+              onClick={() => handleCartItemDelete(cartItem.productId)}
               aria-label="delete"
               color="primary"
               disabled={isDeleting}

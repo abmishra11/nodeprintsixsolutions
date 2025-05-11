@@ -36,9 +36,9 @@ export const cartApi = apiSlice.injectEndpoints({
       providesTags: ["Cart"],
     }),
 
-    updateCartItem: builder.mutation<CartItem, { id: string; updatedData: CartItem }>({
-      query: ({ id, updatedData }) => ({
-        url: `${ApiRouteService.cart}/${id}`,
+    updateCartItem: builder.mutation<CartItem, { productId: string; updatedData: CartItem }>({
+      query: ({ productId, updatedData }) => ({
+        url: `${ApiRouteService.cart}/${productId}`,
         method: "PUT",
         body: updatedData,
       }),
@@ -46,8 +46,8 @@ export const cartApi = apiSlice.injectEndpoints({
     }),
 
     deleteCartItem: builder.mutation<{ success: boolean }, string>({
-      query: (id) => ({
-        url: `${ApiRouteService.cart}/${id}`,
+      query: (productId) => ({
+        url: `${ApiRouteService.cart}/${productId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Cart"],
