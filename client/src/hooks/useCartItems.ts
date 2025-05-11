@@ -1,11 +1,5 @@
 import { useGetCartItemsQuery } from '../redux/services/cart';
-
-export interface CartItem {
-  productId: string;
-  name: string;
-  salePrice: number;
-  qty: number;
-}
+import { CartItem } from '../types/cart';
 
 export function useCartItems(isAuthenticated: boolean) {
   const {

@@ -2,14 +2,7 @@ import React from 'react';
 import { Box, Typography, TextField, Button, Grid, Divider } from '@mui/material';
 import CartProduct from './CartProduct';
 import EmptyCart from './EmptyCart';
-
-interface CartItem {
-  // Define according to your data structure
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
-}
+import { CartItem } from '../../types/cart';
 
 interface CartItemsProps {
   cartItems: CartItem[];

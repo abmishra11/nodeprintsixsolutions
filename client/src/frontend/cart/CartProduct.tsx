@@ -4,17 +4,10 @@ import { Grid, Box, Typography, IconButton } from '@mui/material';
 import { Delete, Add, Remove } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { removeFromCart, updateQuantity, clearCart } from "../../redux/reducer/cart";
-
-type CartItemType = {
-  id: string;
-  title: string;
-  imageUrl: string;
-  salePrice: number;
-  qty: number;
-};
+import { CartItem } from '../../types/cart';
 
 interface Props {
-  cartItem: CartItemType;
+  cartItem: CartItem;
 }
 
 const CartProduct: React.FC<Props> = ({ cartItem }) => {

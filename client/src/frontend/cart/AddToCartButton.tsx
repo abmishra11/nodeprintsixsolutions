@@ -1,18 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { toast } from "react-hot-toast";
 import { RootState } from "../../redux/Store";
-import { useAddCartItemMutation, useGetCartItemsQuery } from "../../redux/services/cart";
+import { useAddCartItemMutation } from "../../redux/services/cart";
 import { addToCart } from "../../redux/reducer/cart";
-
-type CartItem = {
-  id: string;
-  name: string;
-  salePrice: number;
-  quantity: number;
-  imageUrl: string;
-};
+import { CartItem } from "../../types/cart";
+import { useCartItems } from "../../hooks/useCartItems";
 
 type Product = {
   id: string;
@@ -29,31 +23,17 @@ interface AddToCartButtonProps {
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
   const [addedProduct, setAddedProduct] = useState(false);
 
-  const isAuthenticated = useSelector((state: RootState) => state.auth.userId);
+  const user = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = !!user?.userId;
 
-  const {
-    data: serverCart = [],
-    isLoading: isCartLoading,
-    error: cartError,
-  } = useGetCartItemsQuery(undefined, {
-    skip: !isAuthenticated,
-  });
+  const { cartItems } = useCartItems(isAuthenticated);
 
-  const guestCart = useMemo(() => {
-    if (typeof window !== "undefined") {
-      return JSON.parse(localStorage.getItem("guest_cart") || "[]");
-    }
-    return [];
-  }, []);
-
-  const cartItems = isAuthenticated ? serverCart : guestCart;
-  
   const dispatch = useDispatch();
   const [addCartItem, { isLoading }] = useAddCartItemMutation();
 
   const isProductAdded = useMemo(() => {
     return cartItems.some((item: CartItem) => item.productId === product.id);
-  }, [cartItems, product]);
+  }, [cartItems, product.id]);
 
   useEffect(() => {
     setAddedProduct(isProductAdded);
@@ -61,7 +41,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
 
   const handleAddToCart = async () => {
     const cartItem: CartItem = {
-      id: product.id,
+      productId: product.id,
       name: product.name,
       salePrice: product.salePrice,
       quantity: product.quantity,
@@ -70,25 +50,20 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
 
     if (isAuthenticated) {
       try {
-        await addCartItem({
-          productId: cartItem.id,
-          name: cartItem.name,
-          salePrice: cartItem.salePrice,
-          quantity: cartItem.quantity,
-          imageUrl: cartItem.imageUrl,
-        }).unwrap();
+        await addCartItem(cartItem).unwrap();
         toast.success("Item added to cart");
         setAddedProduct(true);
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to add item");
+      } catch (error: any) {
+        toast.error(error?.data?.message || "Failed to add item");
       }
     } else {
       dispatch(addToCart(cartItem));
 
-      const existingCart = JSON.parse(localStorage.getItem("guest_cart") || "[]");
+      const existingCart: CartItem[] = JSON.parse(localStorage.getItem("guest_cart") || "[]");
 
-      const existingIndex = existingCart.findIndex((item: CartItem) => item.id === cartItem.id);
+      const existingIndex = existingCart.findIndex(
+        (item: CartItem) => item.productId === cartItem.productId
+      );
 
       if (existingIndex !== -1) {
         existingCart[existingIndex].quantity += cartItem.quantity;
@@ -107,7 +82,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
       variant="contained"
       fullWidth
       onClick={handleAddToCart}
-      disabled={addedProduct}
+      disabled={addedProduct || isLoading}
       sx={{
         backgroundColor: addedProduct ? 'success.main' : 'primary.main',
         color: '#fff',
@@ -122,7 +97,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
         },
       }}
     >
-      {addedProduct ? "Added to Cart" : "Add to Cart"}
+      {isLoading ? <CircularProgress size={24} color="inherit" /> : addedProduct ? "Added to Cart" : "Add to Cart"}
     </Button>
   );
 };
