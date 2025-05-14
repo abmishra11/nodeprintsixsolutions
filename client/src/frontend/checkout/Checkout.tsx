@@ -3,6 +3,8 @@ import Steps from "./Steps";
 import CartBanner from "./CartBanner";
 import StepForm from "./StepForm";
 import { Box, Container, Paper } from "@mui/material";
+import { useGetAddressesQuery } from "../../redux/services/address";
+import { useSelector } from "react-redux";
 
 const steps = [
   { number: 1, title: "Personal Details" },
@@ -13,22 +15,14 @@ const steps = [
 ];
 
 const Checkout: React.FC = () => {
-  const [userData, setUserData] = useState(null);
-  const [addresses, setAddresses] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const userId = localStorage.getItem("userId"); // or use auth context
-      const [userRes, addressRes] = await Promise.all([
-        axios.get(`/api/userprofile/${userId}`),
-        axios.get(`/api/customer/address/customeraddress/${userId}`),
-      ]);
-      setUserData(userRes.data);
-      setAddresses(addressRes.data);
-    };
 
-    fetchData();
-  }, []);
+  const [addresses, { loading: loadingAddresses }] = useGetAddressesQuery();
+  const userData = useSelector((state: RootState) => state.auth);
+
+  if (loadingAddresses) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
