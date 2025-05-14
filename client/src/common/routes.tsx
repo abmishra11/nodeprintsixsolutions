@@ -22,6 +22,7 @@ import LoginComponent from "../frontend/login/LoginComponent";
 import Register from "../frontend/login/Register";
 import Customers from "../frontend/dashboard/customers";
 import Cart from "../frontend/cart/Cart";
+import Checkout from "../frontend/checkout/Checkout";
 
 const frontendRoutes = createBrowserRouter([
   {
@@ -82,17 +83,17 @@ const frontendRoutes = createBrowserRouter([
         <Cart />
       </ProtectedRoutes>
     ),
-    // children: [
-    //   {
-    //     path: "/cart",
-    //     element: <Cart />,
-    //     index:true
-    //   },
-    //   {
-    //     path: "checkout",
-    //     element: <Categories />
-    //   }
-    // ],
+    children: [
+      {
+        path: "/cart",
+        element: <Cart />,
+        index:true
+      },
+      {
+        path: "checkout",
+        element: <Checkout />
+      }
+    ],
   },
   {
     path: "/dashboard",

@@ -6,4 +6,5 @@ export const ApiRouteService = {
   product: "product",
   customer: "customer",
   cart: "cart",
+  address: "address",
 };

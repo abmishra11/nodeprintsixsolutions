@@ -20,7 +20,8 @@ const getUser = async (req, res, next) => {
 const addressValidation = [
   body("fullName").notEmpty().withMessage("Full name is required"),
   body("phone").isMobilePhone().withMessage("Valid phone number is required"),
-  body("street").notEmpty().withMessage("Street is required"),
+  body("address1").notEmpty().withMessage("Address line 1 is required"),
+  body("address2").notEmpty().withMessage("Address line 2 is required"),
   body("city").notEmpty().withMessage("City is required"),
   body("state").notEmpty().withMessage("State is required"),
   body("postalCode").notEmpty().withMessage("Postal code is required"),
@@ -59,8 +60,19 @@ router.get("/", checkAuth, getUser, async (req, res) => {
   res.status(200).json({ addresses: req.userDoc.addresses });
 });
 
+// Get Address by ID
+router.get("/:addressId", checkAuth, getUser, async (req, res) => {
+  const { addressId } = req.params;
+  const address = req.userDoc.addresses.id(addressId);
+
+  if (!address) return res.status(404).json({ message: "Address not found" });
+
+  res.status(200).json({ address });
+});
+
 // Get Default Address
 router.get("/default", checkAuth, getUser, async (req, res) => {
+
   try {
     const defaultAddress = req.userDoc.addresses.find((addr) => addr.isDefault);
 
@@ -74,9 +86,40 @@ router.get("/default", checkAuth, getUser, async (req, res) => {
   }
 });
 
+// Set Default Address
+router.patch(
+  "/:addressId/default",
+  checkAuth,
+  getUser,
+  async (req, res) => {
+    try {
+      const { addressId } = req.params;
+      const user = req.userDoc;
+
+      const address = user.addresses.id(addressId);
+      if (!address)
+        return res.status(404).json({ message: "Address not found" });
+
+      // Set all addresses to isDefault: false
+      user.addresses.forEach((addr) => {
+        addr.isDefault = addr._id.toString() === addressId;
+      });
+
+      await user.save();
+
+      res.status(200).json({
+        message: "Default address updated",
+        addresses: user.addresses,
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 // Update Address
 router.put(
-  "/addresses/:addressId",
+  "/:addressId",
   checkAuth,
   getUser,
   addressValidation,
@@ -106,7 +149,7 @@ router.put(
 );
 
 // Delete Address
-router.delete("/addresses/:addressId", checkAuth, getUser, async (req, res) => {
+router.delete("/:addressId", checkAuth, getUser, async (req, res) => {
   try {
     const { addressId } = req.params;
     const user = req.userDoc;
@@ -133,36 +176,5 @@ router.delete("/addresses/:addressId", checkAuth, getUser, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// Set Default Address
-router.patch(
-  "/addresses/:addressId/default",
-  checkAuth,
-  getUser,
-  async (req, res) => {
-    try {
-      const { addressId } = req.params;
-      const user = req.userDoc;
-
-      const address = user.addresses.id(addressId);
-      if (!address)
-        return res.status(404).json({ message: "Address not found" });
-
-      // Set all addresses to isDefault: false
-      user.addresses.forEach((addr) => {
-        addr.isDefault = addr._id.toString() === addressId;
-      });
-
-      await user.save();
-
-      res.status(200).json({
-        message: "Default address updated",
-        addresses: user.addresses,
-      });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-);
 
 module.exports = router;
