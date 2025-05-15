@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store";
-import { setCurrentStep } from "../redux/slices/checkoutSlice";
+import { RootState } from "../../redux/Store";
+import { setCurrentStep } from "../../redux/reducer/checkout";
 import { Button, CircularProgress, Stack } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";

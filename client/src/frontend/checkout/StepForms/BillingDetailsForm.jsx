@@ -4,11 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentStep,
   updateCheckoutFormData,
-} from "../redux/reducer/checkout";
+} from "../../../redux/reducer/checkout";
 import TextInput from "../components/forminputs/TextInput";
 import SelectInput from "../components/forminputs/SelectInput";
 import NavButtons from "../components/NavButtons";
-import { useAddAddressMutation } from "../redux/api/addressApi"; // RTK Query
+import { useAddAddressMutation } from "../../../redux/services/address"; // RTK Query
 import {
   Button,
   Grid,
@@ -26,7 +26,7 @@ const BillingDetailsForm = ({ addresses }) => {
     (store) => store.checkout.checkoutFormData
   );
 
-  const [addAddress] = useAddAddressMutation(); // RTK Query hook
+  const [addAddress] = useAddAddressMutation();
 
   const newAddedAddresses = existingFormData?.newAddedAddresses || [];
 

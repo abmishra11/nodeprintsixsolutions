@@ -19,9 +19,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentStep,
   updateCheckoutFormData,
-} from "../redux/slices/checkoutSlice";
-import { useAddAddressMutation } from "../redux/api/addressApi"; // RTK Query
-import NavButtons from "./NavButtons"; // Adjust path
+} from "../../../redux/reducer/checkout";
+import { useAddAddressMutation } from "../../../redux/services/address";
+import NavButtons from "../NavButtons";
 
 const states = [
   /* same states as your original code */

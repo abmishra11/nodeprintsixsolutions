@@ -12,8 +12,9 @@ import {
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { clearCart } from "../redux/reducer/cart";
-import { setCurrentStep } from "../redux/slices/checkoutSlice";
+import { setCurrentStep } from "../../../redux/reducer/checkout";
+import { clearCart } from "../../../redux/reducer/cart";
+
 import { usePlaceOrderMutation } from "../redux/services/orderApi";
 
 const OrderSummary = () => {
