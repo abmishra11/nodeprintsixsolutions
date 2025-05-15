@@ -33,12 +33,14 @@ const countries = [
 
 export default function ShippingDetailsForm({ addresses }) {
   const dispatch = useDispatch();
-  const currentStep = useSelector((state) => state.checkout.currentStep);
+  const currentStep = useSelector((state: RootState) => state.checkout.currentStep);
   const existingFormData = useSelector(
-    (state) => state.checkout.checkoutFormData
+    (state: RootState) => state.checkout.checkoutFormData
   );
 
   const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
+  
+  
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState({});
   const [shippingCost, setShippingCost] = useState(
@@ -50,7 +52,7 @@ export default function ShippingDetailsForm({ addresses }) {
     if (existingFormData?.shippingAddress) {
       setSelectedAddress(existingFormData.shippingAddress);
     } else {
-      const defaultAddr = addresses.find((a) => a.defaultShipping);
+      const defaultAddr = addresses.find((a) => a.isDefault);
       setSelectedAddress(defaultAddr || {});
     }
   }, [addresses, existingFormData]);

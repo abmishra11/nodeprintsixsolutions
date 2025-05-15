@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Steps from "./Steps";
 import CartBanner from "./CartBanner";
 import StepForm from "./StepForm";
 import { Box, Container, Paper } from "@mui/material";
 import { useGetAddressesQuery } from "../../redux/services/address";
 import { useSelector } from "react-redux";
+import type { RootState } from "../../redux/store"; 
 
 const steps = [
   { number: 1, title: "Personal Details" },
@@ -16,13 +17,18 @@ const steps = [
 
 const Checkout: React.FC = () => {
 
-
-  const [addresses, { loading: loadingAddresses }] = useGetAddressesQuery();
+  const {
+    data: addressData,
+    isLoading: loadingAddresses,
+    isError,
+    error,
+  } = useGetAddressesQuery();
+  const addresses = addressData?.addresses || [];
   const userData = useSelector((state: RootState) => state.auth);
+  
 
-  if (loadingAddresses) {
-    return <div>Loading...</div>;
-  }
+  if (loadingAddresses) return <div>Loading…</div>;
+  if (isError) return <div>Error: {JSON.stringify(error)}</div>;
 
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>

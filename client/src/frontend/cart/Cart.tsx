@@ -5,7 +5,7 @@ import CartSubTotalCard from './CartSubTotalCard';
 import EmptyCart from './EmptyCart';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentStep } from '../../redux/reducer/checkout';
-import { RootState } from './redux/store';
+import { RootState } from '../../redux/Store'
 import { Container, Grid, Paper } from '@mui/material';
 import { useCartItems } from '../../hooks/useCartItems';
 

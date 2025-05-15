@@ -3,12 +3,22 @@ import { useSelector } from "react-redux";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import { Link } from "react-router-dom";
 import { Box, Typography, Button, Avatar, Stack } from "@mui/material";
+import { useCartItems } from "../../hooks/useCartItems";
 
 export default function CartBanner() {
-  const cartItems = useSelector((store) => store.cart);
-  const subTotal = (
-    cartItems.reduce((acc, currentItem) => acc + currentItem.salePrice * currentItem.qty, 0) || 0
-  ).toFixed(2);
+  const user = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = !!user?.userId;
+
+  const {
+    cartItems,
+    isCartLoading,
+    cartError,
+  } = useCartItems(isAuthenticated);
+  console.log('cartItems', cartItems);
+  
+  const subTotal = cartItems
+  .reduce((acc, item) => acc + (item.salePrice || 0) * (item.quantity || 0), 0)
+  .toFixed(2);
 
   return (
     <Box className="bg-light rounded mb-4 p-3">

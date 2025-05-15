@@ -5,9 +5,11 @@ import ShippingDetailsForm from "./StepForms/ShippingDetailsForm";
 import BillingDetailsForm from "./StepForms/BillingDetailsForm";
 import PaymentMethodForm from "./StepForms/PaymentMethodForm";
 import OrderSummary from "./StepForms/OrderSummary";
+import type { RootState } from "../../redux/store";
 
 export default function StepForm({ addresses, userData }) {
-  const currentStep = useSelector((store) => store.checkout.currentStep);
+  const currentStep = useSelector((state: RootState) => state.checkout.currentStep);
+  console.log("checkout: ", currentStep);
 
   function renderFormByStep(step) {
     switch (step) {

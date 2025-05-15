@@ -5,10 +5,10 @@ import {
   setCurrentStep,
   updateCheckoutFormData,
 } from "../../../redux/reducer/checkout";
-import TextInput from "../components/forminputs/TextInput";
-import SelectInput from "../components/forminputs/SelectInput";
-import NavButtons from "../components/NavButtons";
-import { useAddAddressMutation } from "../../../redux/services/address"; // RTK Query
+import TextInput from "../../../common/form-components/TextInput";
+import SelectInput from "../../../common/form-components/SelectInput";
+import NavButtons from "../NavButtons"
+import { useAddAddressMutation } from "../../../redux/services/address";
 import {
   Button,
   Grid,

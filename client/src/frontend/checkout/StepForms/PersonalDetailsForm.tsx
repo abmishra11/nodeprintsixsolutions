@@ -1,5 +1,5 @@
 "use client";
-import TextInput from "@/components/forminputs/TextInput";
+import TextInput from "../../../common/form-components/TextInput";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import NavButtons from "../NavButtons";
@@ -7,17 +7,22 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentStep,
   updateCheckoutFormData,
-} from "@/redux/slices/checkoutSlice";
+} from "../../../redux/reducer/checkout";
 
 export default function PersonalDetailsForm({ userData }) {
-  const userId = userData.id;
+  console.log("userData: ", userData);
+  
+  const userId = userData.userId;
   const dispatch = useDispatch();
-  const currentStep = useSelector((store) => store.checkout.currentStep);
+  const currentStep = useSelector((state: RootState) => state.checkout.currentStep);
+  console.log("currentStep: ", currentStep);
+  
   const existingFormData = useSelector(
-    (store) => store.checkout.checkoutFormData
+    (state: RootState) => state.checkout.checkoutFormData
   );
+  console.log("existingFormData: ", existingFormData);
 
-  let formData = userData?.profile;
+  let formData = userData;
   if (existingFormData) {
     const formData = existingFormData;
   }
@@ -30,19 +35,18 @@ export default function PersonalDetailsForm({ userData }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: existingFormData?.name || userData?.profile?.name || "",
-      email: existingFormData?.email || userData?.profile?.email || "",
-      phone: existingFormData?.phone || userData?.profile?.phone || "",
+      name: existingFormData?.name || userData?.name || "",
+      email: existingFormData?.email || userData?.email || "",
+      phone: existingFormData?.phone || userData?.phone || "",
     },
   });
 
-  // Populate form with session data on first load if there's no existing data
   useEffect(() => {
     if (!existingFormData && userData) {
       reset({
-        name: userData?.profile?.name || "",
-        email: userData?.profile?.email || "",
-        phone: userData?.profile?.phone || "",
+        name: userData?.name || "",
+        email: userData?.email || "",
+        phone: userData?.phone || "",
       });
     }
   }, [userData.profile, reset, existingFormData]);

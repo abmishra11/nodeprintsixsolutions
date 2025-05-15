@@ -18,8 +18,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentStep,
   updateCheckoutFormData,
-} from "../redux/reducer/checkout";
-import NavButtons from "./NavButtons";
+} from "../../../redux/reducer/checkout";
+import NavButtons from "../NavButtons";
 
 export default function PaymentMethodForm() {
   const dispatch = useDispatch();

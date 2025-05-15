@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ["ADMIN", "VENDOR", "USER"], default: "USER" },
     status: { type: Boolean, default: false },
     refreshToken: { type: String },
-    addresses: [addressSchema], // <-- array of embedded addresses
+    addresses: [addressSchema],
   },
   { timestamps: true }
 );

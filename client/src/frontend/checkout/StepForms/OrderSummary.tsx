@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 import { setCurrentStep } from "../../../redux/reducer/checkout";
 import { clearCart } from "../../../redux/reducer/cart";
 
-import { usePlaceOrderMutation } from "../redux/services/orderApi";
+// import { usePlaceOrderMutation } from "../redux/services/orderApi";
 
 const OrderSummary = () => {
   const [placeOrder, { isLoading }] = usePlaceOrderMutation();
@@ -42,20 +42,22 @@ const OrderSummary = () => {
   const total = (parseFloat(subTotal) + parseFloat(shippingCost)).toFixed(2);
 
   const handleSubmit = async () => {
-    try {
-      const response = await placeOrder({
-        orderItems: cartItems,
-        checkoutFormData,
-      }).unwrap();
+    console.log("Order Submitted");
+    
+    // try {
+    //   const response = await placeOrder({
+    //     orderItems: cartItems,
+    //     checkoutFormData,
+    //   }).unwrap();
 
-      toast.success("Order placed successfully!");
-      dispatch(clearCart());
-      dispatch(setCurrentStep(1));
-      navigate(`/order-confirmation/${response.id}`);
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again.");
-    }
+    //   toast.success("Order placed successfully!");
+    //   dispatch(clearCart());
+    //   dispatch(setCurrentStep(1));
+    //   navigate(`/order-confirmation/${response.id}`);
+    // } catch (error) {
+    //   console.error(error);
+    //   toast.error("Something went wrong. Please try again.");
+    // }
   };
 
   return (
