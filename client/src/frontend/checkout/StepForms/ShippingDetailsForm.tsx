@@ -37,9 +37,9 @@ export default function ShippingDetailsForm({ addresses }) {
   const existingFormData = useSelector(
     (state: RootState) => state.checkout.checkoutFormData
   );
-
-  const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
+  console.log("existingFormData", existingFormData);
   
+  const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
   
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState({});
@@ -56,6 +56,8 @@ export default function ShippingDetailsForm({ addresses }) {
       setSelectedAddress(defaultAddr || {});
     }
   }, [addresses, existingFormData]);
+
+  console.log("selectedAddress", selectedAddress);
 
   const {
     register,
@@ -124,19 +126,19 @@ export default function ShippingDetailsForm({ addresses }) {
             fullWidth
             select
             label="Select Shipping Address"
-            value={selectedAddress?.shippingAddressId || ""}
+            value={selectedAddress?._id || ""}
             onChange={(e) => {
               const selected = addresses.find(
-                (addr) => addr.id === e.target.value
+                (addr) => addr._id === e.target.value
               );
               setSelectedAddress({
                 ...selected,
-                shippingAddressId: selected.id,
+                shippingAddressId: selected._id,
               });
             }}
           >
             {addresses.map((addr) => (
-              <MenuItem key={addr.id} value={addr.id}>
+              <MenuItem key={addr._id} value={addr._id}>
                 {addr.streetAddress1} {addr.streetAddress2}, {addr.city},{" "}
                 {addr.state}, {addr.zipcode}
               </MenuItem>
@@ -173,18 +175,20 @@ export default function ShippingDetailsForm({ addresses }) {
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
-              label="Street Address 1"
+              label="Address Line 1"
               fullWidth
-              {...register("streetAddress1", { required: "Required" })}
-              error={!!errors.streetAddress1}
-              helperText={errors.streetAddress1?.message}
+              {...register("address1", { required: "Required" })}
+              error={!!errors.address1}
+              helperText={errors.address1?.message}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
-              label="Unit (optional)"
+              label="Address Line 2"
               fullWidth
-              {...register("streetAddress2")}
+              {...register("address2", { required: "Required" })}
+              error={!!errors.address2}
+              helperText={errors.address2?.message}
             />
           </Grid>
           <Grid item xs={12} sm={4}>
