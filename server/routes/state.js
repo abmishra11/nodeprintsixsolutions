@@ -1,24 +1,25 @@
 const express = require("express");
 const State = require('../model/State');
 const Country = require("../model/Country");
+const checkAuth = require("../middleware/checkAuth");
 const router = express.Router();
 
 // Add a new state
-router.post('/', async (req, res) => {
+router.post('/', checkAuth, async (req, res) => {
   try {
-    const { name, code, country } = req.body;
+    const { name, code, countryId } = req.body;
 
-    if (!name || !country) {
+    if (!name || !countryId) {
       return res.status(400).json({ message: 'Name and country are required' });
     }
 
     // Check if country exists
-    const existingCountry = await Country.findById(country);
+    const existingCountry = await Country.findById(countryId);
     if (!existingCountry) {
       return res.status(404).json({ message: 'Country not found' });
     }
 
-    const newState = await State.create({ name, code, country });
+    const newState = await State.create({ name, code, countryId });
     res.status(201).json(newState);
   } catch (error) {
     res.status(500).json({ message: 'Failed to create state', error });
@@ -26,14 +27,14 @@ router.post('/', async (req, res) => {
 });
 
 // Update a state
-router.put('/:id', async (req, res) => {
+router.put('/:id', checkAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, code, country } = req.body;
+    const { name, code, countryId } = req.body;
 
     const updated = await State.findByIdAndUpdate(
       id,
-      { name, code, country },
+      { name, code, countryId },
       { new: true, runValidators: true }
     );
 
