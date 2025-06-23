@@ -1,10 +1,20 @@
 import { ApiRouteService } from "../../config/app-reference";
 import { apiSlice } from "../interceptor/apiSlice";
 
-export interface Login {
-  userKey: string;
+interface LoginRequest {
+  email: string;
   password: string;
-  key: string;
+}
+
+interface LoginResponse {
+  success: boolean;
+  name: string;
+  email: string;
+  role: string;
+  userId: string;
+  token: string;
+  refreshToken: string;
+  msg?: string;
 }
 
 export const authApi = apiSlice.injectEndpoints({
@@ -15,7 +25,7 @@ export const authApi = apiSlice.injectEndpoints({
      * @param body - 
      * @returns 
      */
-    login: builder.mutation<Login, Partial<Login>>({
+    login: builder.mutation<LoginResponse, LoginRequest>({
       query: (body) => ({
         url: ApiRouteService.login,
         method: "POST",
@@ -23,7 +33,7 @@ export const authApi = apiSlice.injectEndpoints({
       }),
     }),
   
-    UserLogout: builder.mutation<Login, Partial<Login>>({
+    UserLogout: builder.mutation<LoginResponse, LoginRequest>({
       query: (body) => ({
         url: ApiRouteService.logout,
         method: "POST",

@@ -117,29 +117,29 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, msg: "Email and password are required" });
+    return res.status(200).json({
+      success: false,
+      msg: "Email and password are required",
+    });
   }
 
   try {
     const user = await User.findOne({ email });
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, msg: "User does not exist" });
-    }
 
-    // Check if user account is active
-    if (!user.status) {
-      return res
-        .status(403)
-        .json({ success: false, msg: "User is not approved to login yet" });
+    // Avoid user enumeration by using a generic error message
+    if (!user || !user.status) {
+      return res.status(200).json({
+        success: false,
+        msg: "Invalid email or password",
+      });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ success: false, msg: "Invalid password" });
+      return res.status(200).json({
+        success: false,
+        msg: "Invalid email or password",
+      });
     }
 
     const token = jwt.sign(
@@ -153,16 +153,26 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    const refreshSecret = process.env.JWT_REFRESH_SECRET;
+
+    if (!refreshSecret) {
+      console.error("Missing JWT_REFRESH_SECRET");
+      return res.status(200).json({
+        success: false,
+        msg: "Authentication server error",
+      });
+    }
+
     const refreshToken = jwt.sign(
       { userId: user._id },
-      process.env.JWT_REFRESH_SECRET || "defaultRefreshSecret",
+      refreshSecret,
       { expiresIn: "7d" }
     );
 
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       name: user.name,
       email: user.email,
@@ -173,7 +183,10 @@ router.post("/login", async (req, res) => {
     });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    return res.status(200).json({
+      success: false,
+      msg: "Internal server error",
+    });
   }
 });
 

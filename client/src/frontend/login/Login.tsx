@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 const Login = () => {
-  const [login] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -46,30 +46,28 @@ const Login = () => {
 
   const onSubmitHandler: SubmitHandler<loginFormInput> = async (value) => {
     try {
-      const res = await login(value);
+      const res = await login(value).unwrap();
+      console.log("res", res);
+      
+      if (res && res.data?.success) {
+        const { token, role, refreshToken } = res.data;
 
-      if (res && res.data && res.data.token) {
-        const token = res.data.token;
-        const role = res.data?.role;
+        toast.success("You are now logged in", { position: "top-center" });
 
-        toast.success("You are now logged in", {
-          position: "top-center",
-        });
         dispatch(setToken(token));
-        dispatch(setRefreshToken(res?.data?.refreshToken))
+        dispatch(setRefreshToken(refreshToken));
         dispatch(setCredential(res.data));
-        if(role === "ADMIN") {
+
+        if (role === "ADMIN") {
           navigate("/dashboard");
-        }else if(role === "VENDOR"){
+        } else if (role === "VENDOR") {
           navigate("/vendor");
-        }else{
+        } else {
           navigate("/customer");
         }
       } else {
-        // Handle case where token is not present
-        toast.error("Login failed. Please check your credentials.", {
-          position: "top-center",
-        });
+        const errorMessage = res?.data?.msg || "Login failed. Please try again.";
+        toast.error(errorMessage, { position: "top-center" });
       }
     } catch (error) {
       console.error("Login error:", error); // Log the error
@@ -140,7 +138,7 @@ const Login = () => {
                           type="submit"
                           variant="contained"
                         >
-                          Login
+                          {isLoading ? "Logging in..." : "Login"}
                         </Button>
                       </div>
                     </div>
