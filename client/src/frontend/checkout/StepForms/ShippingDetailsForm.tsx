@@ -22,14 +22,9 @@ import {
 } from "../../../redux/reducer/checkout";
 import { useAddAddressMutation } from "../../../redux/services/address";
 import NavButtons from "../NavButtons";
+import { useGetAllCountriesQuery } from "../../../redux/services/countries";
 
-const states = [
-  /* same states as your original code */
-];
-const countries = [
-  { id: "Canada", title: "Canada" },
-  { id: "United States", title: "United States" },
-];
+const states = [];
 
 export default function ShippingDetailsForm({ addresses }) {
   const dispatch = useDispatch();
@@ -37,8 +32,8 @@ export default function ShippingDetailsForm({ addresses }) {
   const existingFormData = useSelector(
     (state: RootState) => state.checkout.checkoutFormData
   );
-  console.log("existingFormData", existingFormData);
   
+  const [countries, { isCountryLoading: isCountryAdding }] = useGetAllCountriesQuery();
   const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
   
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
@@ -56,8 +51,6 @@ export default function ShippingDetailsForm({ addresses }) {
       setSelectedAddress(defaultAddr || {});
     }
   }, [addresses, existingFormData]);
-
-  console.log("selectedAddress", selectedAddress);
 
   const {
     register,
@@ -191,14 +184,21 @@ export default function ShippingDetailsForm({ addresses }) {
               helperText={errors.address2?.message}
             />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <TextField
-              label="City"
+              label="Country"
+              select
               fullWidth
-              {...register("city", { required: "Required" })}
-              error={!!errors.city}
-              helperText={errors.city?.message}
-            />
+              {...register("country", { required: "Required" })}
+              error={!!errors.country}
+              helperText={errors.country?.message}
+            >
+              {countries.map((c) => (
+                <MenuItem key={c.id} value={c.id}>
+                  {c.title}
+                </MenuItem>
+              ))}
+            </TextField>
           </Grid>
           <Grid item xs={12} sm={4}>
             <TextField
@@ -218,28 +218,21 @@ export default function ShippingDetailsForm({ addresses }) {
           </Grid>
           <Grid item xs={12} sm={4}>
             <TextField
+              label="City"
+              fullWidth
+              {...register("city", { required: "Required" })}
+              error={!!errors.city}
+              helperText={errors.city?.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
               label="Zip Code"
               fullWidth
               {...register("zipcode", { required: "Required" })}
               error={!!errors.zipcode}
               helperText={errors.zipcode?.message}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Country"
-              select
-              fullWidth
-              {...register("country", { required: "Required" })}
-              error={!!errors.country}
-              helperText={errors.country?.message}
-            >
-              {countries.map((c) => (
-                <MenuItem key={c.id} value={c.id}>
-                  {c.title}
-                </MenuItem>
-              ))}
-            </TextField>
           </Grid>
         </Grid>
 

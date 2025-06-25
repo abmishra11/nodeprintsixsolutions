@@ -7,4 +7,6 @@ export const ApiRouteService = {
   customer: "customer",
   cart: "cart",
   address: "address",
+  country: "country",
+  state: "state",
 };

@@ -39,19 +39,20 @@ const LoginForm: React.FC = () => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
 
-      const res = await login(data);
-
-      if (res && res.data && res.data.token) {
-        const token = res.data.token;
-        const role = res.data?.role;
+      const res = await login(data).unwrap();
+      console.log("res:", res);
+      
+      if (res && res.success) {
+        const token = res.token;
+        const role = res.role;
 
         toast.success("You are now logged in", {
           position: "top-center",
         });
 
         dispatch(setToken(token));
-        dispatch(setRefreshToken(res?.data?.refreshToken))
-        dispatch(setCredential(res.data));
+        dispatch(setRefreshToken(res?.refreshToken))
+        dispatch(setCredential(res));
 
         // ✅ Migrate guest cart to server
         await migrateGuestCart(addCartItem);
@@ -64,7 +65,7 @@ const LoginForm: React.FC = () => {
           navigate("/customer");
         }
       } else {
-        toast.error("Login failed. Please check your credentials.", {
+        toast.error(res?.msg || "Login failed. Please check your credentials.", {
           position: "top-center",
         });
       }

@@ -47,16 +47,15 @@ const Login = () => {
   const onSubmitHandler: SubmitHandler<loginFormInput> = async (value) => {
     try {
       const res = await login(value).unwrap();
-      console.log("res", res);
       
-      if (res && res.data?.success) {
-        const { token, role, refreshToken } = res.data;
+      if (res && res.success) {
+        const { token, role, refreshToken } = res;
 
         toast.success("You are now logged in", { position: "top-center" });
 
         dispatch(setToken(token));
         dispatch(setRefreshToken(refreshToken));
-        dispatch(setCredential(res.data));
+        dispatch(setCredential(res));
 
         if (role === "ADMIN") {
           navigate("/dashboard");
@@ -66,7 +65,7 @@ const Login = () => {
           navigate("/customer");
         }
       } else {
-        const errorMessage = res?.data?.msg || "Login failed. Please try again.";
+        const errorMessage = res?.msg || "Login failed. Please try again.";
         toast.error(errorMessage, { position: "top-center" });
       }
     } catch (error) {

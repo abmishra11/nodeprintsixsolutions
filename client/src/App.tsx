@@ -18,7 +18,7 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <RouterProvider router={frontendRoutes} fallbackElement={<Loader />} />
+      <RouterProvider router={frontendRoutes} />
       <ToastContainer />
     </ThemeProvider>
   );

@@ -1,11 +1,14 @@
 const express = require("express");
 const checkAuth = require("../middleware/checkAuth");
+const checkAdminAuth = require("../middleware/checkAdminAuth");
 const Country = require("../model/Country");
 const router = express.Router();
 
 // Add New Country
-router.post("/", checkAuth, async (req, res) => {
+router.post("/", checkAdminAuth, async (req, res) => {
   try {
+    console.log(req.user.role);
+    
     const { name, code } = req.body;
     
     if (!name || !code) {
@@ -25,7 +28,7 @@ router.post("/", checkAuth, async (req, res) => {
 });
 
 // Update a country
-router.put('/:id', checkAuth, async (req, res) => {
+router.put('/:id', checkAdminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, code } = req.body;
@@ -47,7 +50,7 @@ router.put('/:id', checkAuth, async (req, res) => {
 });
 
 // Delete a country
-router.delete('/:id', checkAuth, async (req, res) => {
+router.delete('/:id', checkAdminAuth, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -65,7 +68,7 @@ router.delete('/:id', checkAuth, async (req, res) => {
 // Get all countries
 router.get('/', async (req, res) => {
   try {
-    const countries = await Country.find().sort({ name: 1 }); // Optional sort by name
+    const countries = await Country.find().sort({ name: 1 }); 
     res.json(countries);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch countries', error });

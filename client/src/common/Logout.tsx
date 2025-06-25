@@ -25,7 +25,7 @@ const Logout = () => {
           position: "top-center",
         });
         dispatch(logOut());
-        navigate("/adminlogin");
+        navigate("/");
       }
     } catch (error) {
       console.log("error in logout: ", error);

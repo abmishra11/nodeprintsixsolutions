@@ -13,8 +13,13 @@ module.exports = (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, jwtSecret);
     
-    req.user = decoded;
-    next();
+    if(decoded?.role === "ADMIN"){
+      req.user = decoded;
+      next();
+    }else{
+      return res.status(401).json({ message: "You are not authodrised." });
+    }
+    
   } catch (error) {
     return res.status(401).json({ message: "Invalid token." });
   }

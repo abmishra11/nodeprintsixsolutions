@@ -2,10 +2,11 @@ const express = require("express");
 const State = require('../model/State');
 const Country = require("../model/Country");
 const checkAuth = require("../middleware/checkAuth");
+const checkAdminAuth = require("../middleware/checkAdminAuth");
 const router = express.Router();
 
 // Add a new state
-router.post('/', checkAuth, async (req, res) => {
+router.post('/', checkAdminAuth, async (req, res) => {
   try {
     const { name, code, countryId } = req.body;
 
@@ -27,7 +28,7 @@ router.post('/', checkAuth, async (req, res) => {
 });
 
 // Update a state
-router.put('/:id', checkAuth, async (req, res) => {
+router.put('/:id', checkAdminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, code, countryId } = req.body;
@@ -49,7 +50,7 @@ router.put('/:id', checkAuth, async (req, res) => {
 });
 
 // Delete a state
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', checkAdminAuth, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -78,7 +79,8 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const state = await State.findById(id).populate('country', 'name code');
+    
+    const state = await State.findById(id);
 
     if (!state) {
       return res.status(404).json({ message: 'State not found' });
@@ -94,9 +96,10 @@ router.get('/:id', async (req, res) => {
 router.get('/by-country/:countryId', async (req, res) => {
   try {
     const { countryId } = req.params;
-
-    const states = await State.find({ country: countryId }).sort({ name: 1 });
-
+    console.log("countryId", countryId);
+    
+    const states = await State.find({ countryId: countryId }).sort({ name: 1 });
+    console.log("states", states);
     if (!states.length) {
       return res.status(404).json({ message: 'No states found for this country' });
     }

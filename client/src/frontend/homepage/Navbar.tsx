@@ -24,9 +24,10 @@ import {
   ShoppingCart,
   AccountCircle,
 } from "@mui/icons-material";
-import { Link } from "react-router-dom"; 
+import { Link, Navigate, useNavigate } from "react-router-dom"; 
 import { useSelector } from "react-redux";
 import { useCartItems } from "../../hooks/useCartItems";
+import logo from '../../../public/logo.png';
 
 export default function Navbar() {
   const loading = false;
@@ -45,6 +46,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchVisible, setSearchVisible] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate()
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -58,6 +60,10 @@ export default function Navbar() {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {
+    navigate("/logout")
+  }
+
   return (
     <div>
       {/* Top bar */}
@@ -68,7 +74,7 @@ export default function Navbar() {
           {/* Logo */}
           <Box className="d-flex align-items-center">
             <Link to="/">
-              <img src="./logo.png" alt="PrintSix logo" height="50" />
+              <img src={logo} alt="PrintSix logo" height="50" />
             </Link>
           </Box>
 
@@ -112,7 +118,7 @@ export default function Navbar() {
                   onClose={handleMenuClose}
                 >
                   <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-                  <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </Menu>
               </>
             ) : (

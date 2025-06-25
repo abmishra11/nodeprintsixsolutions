@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Box, Typography, Paper } from "@mui/material";
 import { Link } from "react-router-dom"; 
 import LoginForm from "./LoginForm";
+import { Toaster } from "react-hot-toast";
 
 const LoginComponent: React.FC = () => {
   return (
@@ -11,7 +12,7 @@ const LoginComponent: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        bgcolor: "#121212", // dark gray bg
+        bgcolor: "#121212",
       }}
     >
       <Container maxWidth="sm">
@@ -20,7 +21,7 @@ const LoginComponent: React.FC = () => {
           sx={{
             p: 5,
             borderRadius: 3,
-            backgroundColor: "#2d2d2d", // similar to bg-gray-800
+            backgroundColor: "#2d2d2d",
             color: "#fff",
           }}
         >
@@ -29,6 +30,7 @@ const LoginComponent: React.FC = () => {
           </Typography>
 
           <LoginForm />
+          <Toaster position="top-center" />
 
           {/* Uncomment if you want social login buttons */}
           {/*
