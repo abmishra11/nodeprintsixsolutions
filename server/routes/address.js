@@ -19,7 +19,7 @@ const getUser = async (req, res, next) => {
 // Address validation rules
 const addressValidation = [
   body("fullName").notEmpty().withMessage("Full name is required"),
-  body("phone").isMobilePhone().withMessage("Valid phone number is required"),
+  body("phone").notEmpty().withMessage("Valid phone number is required"),
   body("address1").notEmpty().withMessage("Address line 1 is required"),
   body("address2").notEmpty().withMessage("Address line 2 is required"),
   body("city").notEmpty().withMessage("City is required"),
@@ -38,11 +38,10 @@ router.post("/", checkAuth, getUser, addressValidation, async (req, res) => {
     const user = req.userDoc;
     const newAddress = req.body;
 
-    // If this is the first address, set as default
     if (user.addresses.length === 0) {
       newAddress.isDefault = true;
     }
-
+    
     user.addresses.push(newAddress);
     await user.save();
 
@@ -57,7 +56,18 @@ router.post("/", checkAuth, getUser, addressValidation, async (req, res) => {
 
 // Get All Addresses
 router.get("/", checkAuth, getUser, async (req, res) => {
-  res.status(200).json({ addresses: req.userDoc.addresses });
+
+  try {
+    const user = await User.findById(req.user.userId);                                       
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const addresses = user?.addresses || [];
+
+    return res.status(200).json({ addresses });
+  } catch (err) {
+    next(err);
+  }
 });
 
 // Get Address by ID
@@ -153,13 +163,15 @@ router.delete("/:addressId", checkAuth, getUser, async (req, res) => {
   try {
     const { addressId } = req.params;
     const user = req.userDoc;
-
+    console.log("user: ", user);
     const address = user.addresses.id(addressId);
+    console.log("address: ", address);
+    
     if (!address) return res.status(404).json({ message: "Address not found" });
 
     const wasDefault = address.isDefault;
 
-    address.remove();
+    address.deleteOne();
     await user.save();
 
     // If deleted address was default, promote the first remaining one

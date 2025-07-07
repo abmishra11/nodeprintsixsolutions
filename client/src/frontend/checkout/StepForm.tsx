@@ -9,7 +9,7 @@ import type { RootState } from "../../redux/store";
 
 export default function StepForm({ addresses, userData }) {
   const currentStep = useSelector((state: RootState) => state.checkout.currentStep);
-  console.log("checkout: ", currentStep);
+  console.log("currentStep: ", currentStep);
 
   function renderFormByStep(step) {
     switch (step) {

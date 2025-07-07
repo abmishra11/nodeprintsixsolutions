@@ -23,18 +23,21 @@ import {
 import { useAddAddressMutation } from "../../../redux/services/address";
 import NavButtons from "../NavButtons";
 import { useGetAllCountriesQuery } from "../../../redux/services/countries";
-
-const states = [];
+import { State } from "../../../types/state";
+import { useGetStatesByCountryIdQuery } from "../../../redux/services/states";
 
 export default function ShippingDetailsForm({ addresses }) {
+  console.log("addresses", addresses);
+  
+  const [ countryId, setCountryId] = useState('');
+  const { data: countries = [] } = useGetAllCountriesQuery();
+  const { data: states = [] } = useGetStatesByCountryIdQuery(countryId);
+  
   const dispatch = useDispatch();
   const currentStep = useSelector((state: RootState) => state.checkout.currentStep);
   const existingFormData = useSelector(
     (state: RootState) => state.checkout.checkoutFormData
   );
-  
-  const [countries, { isCountryLoading: isCountryAdding }] = useGetAllCountriesQuery();
-  const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
   
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState({});
@@ -42,6 +45,8 @@ export default function ShippingDetailsForm({ addresses }) {
     existingFormData?.shippingCost || ""
   );
   const [shippingCostError, setShippingCostError] = useState(false);
+
+  const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
 
   useEffect(() => {
     if (existingFormData?.shippingAddress) {
@@ -67,7 +72,13 @@ export default function ShippingDetailsForm({ addresses }) {
     }
   }, [selectedAddress, isAddingNewAddress, reset]);
 
+  console.log("selectedAddress: ", selectedAddress);
+  
   const onSubmit = async (data) => {
+    data.fullName = existingFormData?.name;
+    data.phone = existingFormData?.phone;
+    console.log("data", data);
+    
     if (!shippingCost) {
       setShippingCostError(true);
       return;
@@ -75,22 +86,17 @@ export default function ShippingDetailsForm({ addresses }) {
     setShippingCostError(false);
 
     let shippingAddress = data;
-    let shippingAddressId = selectedAddress.shippingAddressId;
+    let shippingAddressId = selectedAddress?.shippingAddressId;
 
     if (!data.shippingAddressId) {
-      try {
-        const res = await addAddress({
+        const addressResult = await addAddress({
           ...data,
           defaultBilling: false,
           defaultShipping: false,
         }).unwrap();
-
-        shippingAddress = res[0];
-        shippingAddressId = res[0].id;
-      } catch (err) {
-        console.error("Address creation failed:", err);
-        return;
-      }
+        console.log("Address Result: ", addressResult);
+        shippingAddress = addressResult?.addresses[0];
+        shippingAddressId = addressResult?.addresses[0]._id;
     }
 
     dispatch(
@@ -103,6 +109,8 @@ export default function ShippingDetailsForm({ addresses }) {
         shippingCost,
       })
     );
+    console.log("Inner Current Step: ", currentStep);
+    
     dispatch(setCurrentStep(currentStep + 1));
   };
 
@@ -132,8 +140,8 @@ export default function ShippingDetailsForm({ addresses }) {
           >
             {addresses.map((addr) => (
               <MenuItem key={addr._id} value={addr._id}>
-                {addr.streetAddress1} {addr.streetAddress2}, {addr.city},{" "}
-                {addr.state}, {addr.zipcode}
+                {addr.address1} {addr.address2}, {addr.city},
+                {addr.state}, {addr.postalCode}, {addr.country}
               </MenuItem>
             ))}
           </TextField>
@@ -192,10 +200,16 @@ export default function ShippingDetailsForm({ addresses }) {
               {...register("country", { required: "Required" })}
               error={!!errors.country}
               helperText={errors.country?.message}
+              onChange={(e) => {
+                const name = e.target.value;
+                const id   = countries.find(c => c.name === name)?._id;
+                setCountryId(id);
+                fieldOnChange(e);
+              }}
             >
               {countries.map((c) => (
-                <MenuItem key={c.id} value={c.id}>
-                  {c.title}
+                <MenuItem key={c._id} value={c.name}>
+                  {c.name}
                 </MenuItem>
               ))}
             </TextField>
@@ -210,8 +224,8 @@ export default function ShippingDetailsForm({ addresses }) {
               helperText={errors.state?.message}
             >
               {states.map((s) => (
-                <MenuItem key={s.id} value={s.id}>
-                  {s.title}
+                <MenuItem key={s._id} value={s.name}>
+                  {s.name}
                 </MenuItem>
               ))}
             </TextField>
@@ -227,11 +241,11 @@ export default function ShippingDetailsForm({ addresses }) {
           </Grid>
           <Grid item xs={12} sm={4}>
             <TextField
-              label="Zip Code"
+              label="Postal Code"
               fullWidth
-              {...register("zipcode", { required: "Required" })}
-              error={!!errors.zipcode}
-              helperText={errors.zipcode?.message}
+              {...register("postalCode", { required: "Required" })}
+              error={!!errors.postalCode}
+              helperText={errors.postalCode?.message}
             />
           </Grid>
         </Grid>
