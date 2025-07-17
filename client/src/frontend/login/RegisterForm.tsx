@@ -10,57 +10,46 @@ import {
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useUserSignupMutation } from "../../redux/services/users";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SignupInput, signupSchema } from "../../types/signupInput";
 
 interface RegisterFormProps {
   role?: string;
 }
 
-interface FormValues {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  role: string;
-}
-
 const RegisterForm: React.FC<RegisterFormProps> = ({ role = "USER" }) => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [signup] = useUserSignupMutation();
-  const searchParams = new URLSearchParams(location.search);
 
   const {
     register,
     handleSubmit,
     reset,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>();
-
-  const password = watch("password");
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+    mode: "onTouched",
+  });
 
   const {
     ref: emailRef,
     onChange: emailOnChange,
     ...emailRest
-  } = register("email", { required: "Email is required" });
+  } = register("email");
 
-  const [loading, setLoading] = useState(false);
   const [emailErr, setEmailErr] = useState("");
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setLoading(true);
+  const onSubmit: SubmitHandler<SignupInput> = async (data) => {
     setEmailErr("");
+    const { confirmPassword, ...signupData } = data;
 
     try {
-      const { confirmPassword, ...signupData } = data; // Exclude confirmPassword
-
       const result = await signup(signupData);
       console.log("result", result);
 
       if ("data" in result && result.data?.success) {
         toast.success(result.data.msg);
-        //reset();
+        reset();
       } else if ("error" in result) {
         const error = result.error as any;
         if (
@@ -69,14 +58,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ role = "USER" }) => {
         ) {
           setEmailErr("Email already exists");
         } else {
-          toast.error("Something went wrong. Please try again.");
+          toast.error("Registration failed. Please try again.");
         }
       }
     } catch (error) {
       console.error("Network error:", error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Network issue. Check your connection.");
     } finally {
-      setLoading(false);
     }
   };
 
@@ -88,18 +76,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ role = "USER" }) => {
       noValidate
       autoComplete="off"
     >
-      <input
-        type="hidden"
-        value={role}
-        {...register("role", { required: true })}
-      />
+      <input type="hidden" value={role} {...register("role")} />
 
       <Box mb={2}>
         <TextField
           fullWidth
           label="Your Name"
           variant="outlined"
-          {...register("name", { required: "Name is required" })}
+          {...register("name")}
           error={!!errors.name}
           helperText={errors.name?.message}
         />
@@ -128,18 +112,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ role = "USER" }) => {
           label="Password"
           type="password"
           variant="outlined"
-          {...register("password", {
-            required: "Password is required",
-            minLength: {
-              value: 8,
-              message: "Password must be at least 8 characters",
-            },
-            pattern: {
-              value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
-              message:
-                "Password must include uppercase, lowercase, number, and special character",
-            },
-          })}
+          {...register("password")}
           error={!!errors.password}
           helperText={errors.password?.message}
         />
@@ -151,11 +124,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ role = "USER" }) => {
           label="Confirm Password"
           type="password"
           variant="outlined"
-          {...register("confirmPassword", {
-            required: "Please confirm your password",
-            validate: (value) =>
-              value === password || "Passwords do not match",
-          })}
+          {...register("confirmPassword")}
           error={!!errors.confirmPassword}
           helperText={errors.confirmPassword?.message}
         />
@@ -167,10 +136,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ role = "USER" }) => {
           color="primary"
           fullWidth
           type="submit"
-          disabled={loading}
+          disabled={isSubmitting}
           className="text-white"
         >
-          {loading ? <CircularProgress size={20} color="inherit" /> : "Sign Up"}
+          {isSubmitting ? (
+            <CircularProgress size={20} color="inherit" />
+          ) : (
+            "Sign Up"
+          )}
         </Button>
       </Box>
 

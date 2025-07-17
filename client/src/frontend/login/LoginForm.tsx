@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   TextField,
@@ -12,14 +12,15 @@ import {
 import toast from "react-hot-toast";
 import { useLoginMutation } from "../../redux/services/auth";
 import { useAppDispatch } from "../../redux/hooks";
-import { setCredential, setToken, setRefreshToken } from "../../redux/reducer/auth";
+import {
+  setCredential,
+  setToken,
+  setRefreshToken,
+} from "../../redux/reducer/auth";
 import { migrateGuestCart } from "../../utils/migrateGuestCart";
 import { useAddCartItemMutation } from "../../redux/services/cart";
-
-type FormData = {
-  email: string;
-  password: string;
-};
+import { LoginInput, loginSchema } from "../../types/logininput";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const LoginForm: React.FC = () => {
   const [login] = useLoginMutation();
@@ -28,20 +29,19 @@ const LoginForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>();
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+  });
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [emailErr, setEmailErr] = useState("");
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const onSubmit: SubmitHandler<LoginInput> = async (data) => {
     try {
-
       const res = await login(data).unwrap();
       console.log("res:", res);
-      
+
       if (res && res.success) {
         const token = res.token;
         const role = res.role;
@@ -51,28 +51,30 @@ const LoginForm: React.FC = () => {
         });
 
         dispatch(setToken(token));
-        dispatch(setRefreshToken(res?.refreshToken))
+        dispatch(setRefreshToken(res?.refreshToken));
         dispatch(setCredential(res));
 
         // ✅ Migrate guest cart to server
         await migrateGuestCart(addCartItem);
 
-        if(role === "ADMIN") {
+        if (role === "ADMIN") {
           navigate("/dashboard");
-        }else if(role === "VENDOR"){
+        } else if (role === "VENDOR") {
           navigate("/vendor");
-        }else{
+        } else {
           navigate("/customer");
         }
       } else {
-        toast.error(res?.msg || "Login failed. Please check your credentials.", {
-          position: "top-center",
-        });
+        toast.error(
+          res?.msg || "Login failed. Please check your credentials.",
+          {
+            position: "top-center",
+          }
+        );
       }
     } catch (err) {
       console.error("Login error:", err);
       toast.error("Something went wrong, please try again");
-      setLoading(false);
     }
   };
 
@@ -90,15 +92,8 @@ const LoginForm: React.FC = () => {
           fullWidth
           type="email"
           placeholder="Enter your email address"
-          {...register("email", { required: true })}
-          error={!!errors.email || !!emailErr}
-          helperText={
-            errors.email
-              ? "This field is required"
-              : emailErr
-              ? emailErr
-              : ""
-          }
+          {...register("email")}
+          helperText={errors.email?.message}
           variant="outlined"
           InputLabelProps={{ shrink: true }}
         />
@@ -112,14 +107,13 @@ const LoginForm: React.FC = () => {
           fullWidth
           type="password"
           placeholder="Enter your password"
-          {...register("password", { required: true })}
-          error={!!errors.password}
-          helperText={errors.password && "This field is required"}
+          {...register("password")}
+          helperText={errors.password?.message}
           variant="outlined"
         />
       </div>
 
-      {loading ? (
+      {isSubmitting ? (
         <Button
           fullWidth
           variant="contained"
@@ -136,6 +130,7 @@ const LoginForm: React.FC = () => {
           color="primary"
           type="submit"
           className="text-uppercase fw-medium"
+          disabled={isSubmitting}
         >
           Login
         </Button>

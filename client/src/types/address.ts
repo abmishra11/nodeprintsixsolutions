@@ -3,10 +3,10 @@ export interface Address {
   fullName: string;
   phone: string;
   address1: string;
-  address2: string;
+  address2?: string;
   city: string;
   state: string;
-  postalCode: string;
   country: string;
-  isDefault: boolean;
+  postalCode: string;
+  isDefault?: boolean;
 }
