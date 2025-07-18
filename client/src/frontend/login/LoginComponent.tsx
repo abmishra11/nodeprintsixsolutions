@@ -1,31 +1,25 @@
 import React from "react";
 import { Container, Box, Typography, Paper } from "@mui/material";
-import { Link } from "react-router-dom"; 
 import LoginForm from "./LoginForm";
 import { Toaster } from "react-hot-toast";
 
 const LoginComponent: React.FC = () => {
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        bgcolor: "#121212",
-      }}
-    >
+    <section className="d-flex align-items-center justify-content-center min-vh-100">
       <Container maxWidth="sm">
-        <Paper
-          elevation={8}
+        <Box
+          component={Paper}
+          elevation={10}
           sx={{
-            p: 5,
-            borderRadius: 3,
-            backgroundColor: "#2d2d2d",
-            color: "#fff",
+            maxWidth: 500,
+            mx: "auto",
+            p: 4,
+            backgroundColor: "primary.main", 
+            borderRadius: 2,
+            overflow: "hidden",
           }}
         >
-          <Typography variant="h5" align="center" gutterBottom>
+          <Typography variant="h5" align="center" gutterBottom color="secondary.main">
             Login
           </Typography>
 
@@ -76,16 +70,9 @@ const LoginComponent: React.FC = () => {
             </Link>
           </Box>
           */}
-
-          <Typography variant="body2" mt={4} align="center">
-            Don&apos;t have an account?{" "}
-            <Link to="/register" className="text-primary">
-              Register now
-            </Link>
-          </Typography>
-        </Paper>
+        </Box>
       </Container>
-    </Box>
+    </section>
   );
 };
 

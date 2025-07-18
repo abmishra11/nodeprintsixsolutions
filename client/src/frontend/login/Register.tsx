@@ -14,14 +14,12 @@ const Register: React.FC = () => {
             maxWidth: 500,
             mx: "auto",
             p: 4,
-            backgroundColor: "#2d3748", // similar to bg-gray-800
-            color: "white",
-            border: "1px solid #4a5568", // similar to border-gray-700
+            backgroundColor: "primary.main", 
             borderRadius: 2,
             overflow: "hidden",
           }}
         >
-          <Typography variant="h5" align="center" gutterBottom>
+          <Typography variant="h5" align="center" gutterBottom color="secondary">
             Create an Account
           </Typography>
           <RegisterForm role="USER" />

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { Link } from "react-router-dom"; 
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -29,9 +30,10 @@ const LoginForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
+    mode: "onTouched",
   });
 
   const dispatch = useAppDispatch();
@@ -54,7 +56,6 @@ const LoginForm: React.FC = () => {
         dispatch(setRefreshToken(res?.refreshToken));
         dispatch(setCredential(res));
 
-        // ✅ Migrate guest cart to server
         await migrateGuestCart(addCartItem);
 
         if (role === "ADMIN") {
@@ -82,33 +83,31 @@ const LoginForm: React.FC = () => {
     <Box
       component="form"
       onSubmit={handleSubmit(onSubmit)}
+      className="p-4"
+      noValidate
+      autoComplete="off"
       sx={{ display: "flex", flexDirection: "column", gap: 2 }}
     >
       <div>
-        <Typography color="white" gutterBottom>
-          * Your email
-        </Typography>
         <TextField
           fullWidth
           type="email"
-          placeholder="Enter your email address"
+          label="Enter your email address"
           {...register("email")}
           helperText={errors.email?.message}
+          error={!!errors.email}
           variant="outlined"
-          InputLabelProps={{ shrink: true }}
         />
       </div>
 
       <div>
-        <Typography color="white" gutterBottom>
-          * Password
-        </Typography>
         <TextField
           fullWidth
           type="password"
-          placeholder="Enter your password"
+          label="Enter your password"
           {...register("password")}
           helperText={errors.password?.message}
+          error={!!errors.password}
           variant="outlined"
         />
       </div>
@@ -117,7 +116,6 @@ const LoginForm: React.FC = () => {
         <Button
           fullWidth
           variant="contained"
-          color="primary"
           disabled
           startIcon={<CircularProgress size={20} color="inherit" />}
         >
@@ -127,7 +125,6 @@ const LoginForm: React.FC = () => {
         <Button
           fullWidth
           variant="contained"
-          color="primary"
           type="submit"
           className="text-uppercase fw-medium"
           disabled={isSubmitting}
@@ -136,16 +133,24 @@ const LoginForm: React.FC = () => {
         </Button>
       )}
 
-      <Box mt={2}>
-        <MuiLink
-          href="/forget-password"
-          color="primary"
-          underline="hover"
-          sx={{ cursor: "pointer" }}
-        >
-          Forgot Password?
-        </MuiLink>
+      <Box>
+        <Typography variant="body2">
+          <Link
+            to="/forget-password"
+            className="text-primary"
+          >
+            Forgot Password?
+          </Link>
+        </Typography>
+
+        <Typography variant="body2">
+          Don&apos;t have an account?{" "}
+          <Link to="/register" className="text-primary">
+            Register now
+          </Link>
+        </Typography>
       </Box>
+    
     </Box>
   );
 };

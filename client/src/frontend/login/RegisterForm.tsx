@@ -10,22 +10,22 @@ import {
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useUserSignupMutation } from "../../redux/services/users";
+import { SignupInput, signupSchema } from "../../types/signupinput";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SignupInput, signupSchema } from "../../types/signupInput";
+
 
 interface RegisterFormProps {
   role?: string;
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ role = "USER" }) => {
-  const location = useLocation();
   const [signup] = useUserSignupMutation();
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
     mode: "onTouched",
@@ -133,7 +133,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ role = "USER" }) => {
       <Box mb={2}>
         <Button
           variant="contained"
-          color="primary"
           fullWidth
           type="submit"
           disabled={isSubmitting}
