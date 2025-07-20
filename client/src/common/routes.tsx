@@ -40,27 +40,27 @@ const frontendRoutes = createBrowserRouter([
       },
       {
         path: "/shop",
-        element: <Shop />
+        element: <Shop />,
       },
       {
         path: "/category/:slug",
-        element: <CategoryShop />
+        element: <CategoryShop />,
       },
       {
         path: "/search",
-        element: <SearchShop />
+        element: <SearchShop />,
       },
       {
         path: "/products/:slug",
-        element: <ProductDetailPage />
+        element: <ProductDetailPage />,
       },
       {
         path: "/login",
-        element: <LoginComponent />
+        element: <LoginComponent />,
       },
       {
         path: "/register",
-        element: <Register />
+        element: <Register />,
       },
       {
         path: "/adminlogin",
@@ -72,30 +72,44 @@ const frontendRoutes = createBrowserRouter([
       },
       {
         path: "/unauthorized",
-        element: <Unauthorized />
-      }
+        element: <Unauthorized />,
+      },
     ],
   },
   {
     path: "/cart",
-    element: (
-      <ProtectedRoutes allowedRoles={['USER']}>
-        <Cart />
-      </ProtectedRoutes>
-    )
+    element: <Layout />,
+    children: [
+      {
+        path: "/cart",
+        element: (
+          <ProtectedRoutes allowedRoles={["USER"]}>
+            <Cart />
+          </ProtectedRoutes>
+        ),
+        index: true,
+      },
+    ],
   },
   {
     path: "/checkout",
-    element: (
-      <ProtectedRoutes allowedRoles={['USER']}>
-        <Checkout />
-      </ProtectedRoutes>
-    )
+    element: <Layout />,
+    children: [
+      {
+        path: "/checkout",
+        element: (
+          <ProtectedRoutes allowedRoles={["USER"]}>
+            <Checkout />
+          </ProtectedRoutes>
+        ),
+        index: true,
+      },
+    ],
   },
   {
     path: "/dashboard",
     element: (
-      <ProtectedRoutes allowedRoles={['ADMIN']}>
+      <ProtectedRoutes allowedRoles={["ADMIN"]}>
         <DashboardLayout />
       </ProtectedRoutes>
     ),
@@ -103,39 +117,39 @@ const frontendRoutes = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard />,
-        index:true
+        index: true,
       },
       {
         path: "categories",
-        element: <Categories />
+        element: <Categories />,
       },
       {
         path: "add-category",
-        element: <AddCategory />
+        element: <AddCategory />,
       },
       {
         path: "edit-category/:id",
-        element: <EditCategory />
+        element: <EditCategory />,
       },
       {
         path: "products",
-        element: <Products />
+        element: <Products />,
       },
       {
         path: "add-product",
-        element: <AddProduct />
+        element: <AddProduct />,
       },
       {
         path: "edit-product/:id",
-        element: <EditProduct />
+        element: <EditProduct />,
       },
       {
         path: "customers",
-        element: <Customers />
+        element: <Customers />,
       },
       {
         path: "cart",
-        element: <Cart />
+        element: <Cart />,
       },
     ],
   },

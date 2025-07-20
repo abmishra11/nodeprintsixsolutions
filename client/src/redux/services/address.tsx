@@ -4,7 +4,6 @@ import { Address } from "../../types/address";
 
 export const addressApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-
     addAddress: builder.mutation<Address, Address>({
       query: (data) => ({
         url: ApiRouteService.address,
@@ -46,7 +45,10 @@ export const addressApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Address"],
     }),
 
-    updateAddress: builder.mutation<Address, { id: string; updatedData: Address }>({
+    updateAddress: builder.mutation<
+      Address,
+      { id: string; updatedData: Address }
+    >({
       query: ({ id, updatedData }) => ({
         url: `${ApiRouteService.address}/${id}`,
         method: "PUT",

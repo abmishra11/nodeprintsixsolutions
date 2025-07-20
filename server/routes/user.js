@@ -2,14 +2,12 @@ const express = require("express");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
 const User = require("../model/User");
+const checkAuth = require("../middleware/checkAuth");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendVerificationEmail = require("../utils/sendVerificationEmail");
-
-const jwtSecret = process.env.JWT_SECRET || "defaultSecretKey";
-
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
@@ -230,6 +228,24 @@ router.post("/token", async (req, res) => {
     res
       .status(403)
       .json({ success: false, msg: "Invalid or expired refresh token" });
+  }
+});
+
+router.get("/userdetails", checkAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-password -refreshToken");
+    
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ success: false, msg: "Server error" });
   }
 });
 

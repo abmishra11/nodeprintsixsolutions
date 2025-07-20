@@ -3,11 +3,11 @@ import Steps from "./Steps";
 import CartBanner from "./CartBanner";
 import StepForm from "./StepForm";
 import { Box, Container, Paper } from "@mui/material";
-import { useGetAddressesQuery } from "../../redux/services/address";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../redux/store"; 
+import { CheckoutSteps } from "../../types/checkoutsteps";
+import { User } from "../../types/user";
+import { useGetUserDetailsQuery } from "../../redux/services/users";
 
-const steps = [
+const steps: CheckoutSteps[] = [
   { number: 1, title: "Personal Details" },
   { number: 2, title: "Shipping Address Details" },
   { number: 3, title: "Billing Address Details" },
@@ -16,18 +16,16 @@ const steps = [
 ];
 
 const Checkout: React.FC = () => {
-
   const {
-    data: addressData,
-    isLoading: loadingAddresses,
+    data: userData,
+    isLoading: loadingUserData,
     isError,
     error,
-  } = useGetAddressesQuery();
-  const addresses = addressData?.addresses || [];
-  const userData = useSelector((state: RootState) => state.auth);
-  
+  } = useGetUserDetailsQuery();
 
-  if (loadingAddresses) return <div>Loading…</div>;
+  console.log("user: ", userData);
+
+  if (loadingUserData) return <div>Loading…</div>;
   if (isError) return <div>Error: {JSON.stringify(error)}</div>;
 
   return (
@@ -37,7 +35,7 @@ const Checkout: React.FC = () => {
           <Steps steps={steps} />
           <Box sx={{ mt: 3 }}>
             <CartBanner />
-            <StepForm userData={userData} addresses={addresses} />
+            <StepForm userData={userData?.user} />
           </Box>
         </Paper>
       </Container>

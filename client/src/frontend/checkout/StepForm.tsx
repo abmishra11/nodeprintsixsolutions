@@ -5,20 +5,28 @@ import ShippingDetailsForm from "./StepForms/ShippingDetailsForm";
 import BillingDetailsForm from "./StepForms/BillingDetailsForm";
 import PaymentMethodForm from "./StepForms/PaymentMethodForm";
 import OrderSummary from "./StepForms/OrderSummary";
-import type { RootState } from "../../redux/store";
+import { RootState } from "../../redux/Store";
+import { Address } from "../../types/address";
+import { User } from "../../types/user";
 
-export default function StepForm({ addresses, userData }) {
-  const currentStep = useSelector((state: RootState) => state.checkout.currentStep);
+interface StepFormProps {
+  userData: User;
+}
+
+export default function StepForm({ userData }: StepFormProps) {
+  const currentStep = useSelector(
+    (state: RootState) => state.checkout.currentStep
+  );
   console.log("currentStep: ", currentStep);
 
-  function renderFormByStep(step) {
+  function renderFormByStep(step: number) {
     switch (step) {
       case 1:
         return <PersonalDetailsForm userData={userData} />;
       case 2:
-        return <ShippingDetailsForm addresses={addresses} />;
+        return <ShippingDetailsForm addresses={userData?.addresses} />;
       case 3:
-        return <BillingDetailsForm addresses={addresses} />;
+        return <BillingDetailsForm addresses={userData?.addresses} />;
       case 4:
         return <PaymentMethodForm />;
       case 5:
