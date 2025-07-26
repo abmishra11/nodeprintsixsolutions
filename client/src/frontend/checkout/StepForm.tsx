@@ -17,14 +17,13 @@ export default function StepForm({ userData }: StepFormProps) {
   const currentStep = useSelector(
     (state: RootState) => state.checkout.currentStep
   );
-  console.log("currentStep: ", currentStep);
 
   function renderFormByStep(step: number) {
     switch (step) {
       case 1:
         return <PersonalDetailsForm userData={userData} />;
       case 2:
-        return <ShippingDetailsForm addresses={userData?.addresses} />;
+        return <ShippingDetailsForm />;
       case 3:
         return <BillingDetailsForm addresses={userData?.addresses} />;
       case 4:

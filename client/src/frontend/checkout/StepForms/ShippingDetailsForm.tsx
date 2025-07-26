@@ -23,26 +23,45 @@ import {
 import { useAddAddressMutation } from "../../../redux/services/address";
 import NavButtons from "../NavButtons";
 import { useGetAllCountriesQuery } from "../../../redux/services/countries";
-import { State } from "../../../types/state";
 import { useGetStatesByCountryIdQuery } from "../../../redux/services/states";
+import { RootState } from "../../../redux/Store";
+import { ShippingAddress } from "../../../types/shippingaddress";
+import { useGetUserDetailsQuery } from "../../../redux/services/users";
 
-export default function ShippingDetailsForm({ addresses }) {
+export default function ShippingDetailsForm() {
+  const {
+    data: userData,
+    isLoading: loadingUserData,
+    isError,
+    error,
+    refetch,
+  } = useGetUserDetailsQuery();
+
+  console.log("user: ", userData?.user);
+
+  const addresses = userData?.user?.addresses;
+
   console.log("addresses", addresses);
-  
-  const [ countryId, setCountryId] = useState('');
+
+  const [countryId, setCountryId] = useState("");
   const { data: countries = [] } = useGetAllCountriesQuery();
   const { data: states = [] } = useGetStatesByCountryIdQuery(countryId);
-  
+
   const dispatch = useDispatch();
-  const currentStep = useSelector((state: RootState) => state.checkout.currentStep);
+  const currentStep = useSelector(
+    (state: RootState) => state.checkout.currentStep
+  );
   const existingFormData = useSelector(
     (state: RootState) => state.checkout.checkoutFormData
   );
-  
+  console.log("existingFormData:", existingFormData);
+
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState({});
+  const [selectedAddress, setSelectedAddress] = useState<
+    Partial<ShippingAddress>
+  >({});
   const [shippingCost, setShippingCost] = useState(
-    existingFormData?.shippingCost || ""
+    existingFormData?.shippingCost || 0
   );
   const [shippingCostError, setShippingCostError] = useState(false);
 
@@ -61,10 +80,32 @@ export default function ShippingDetailsForm({ addresses }) {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
-  } = useForm({
-    defaultValues: selectedAddress,
-  });
+  } = useForm<ShippingAddress>();
+
+  const watchedCountry = watch("country");
+  const watchedState = watch("state");
+
+  useEffect(() => {
+    if (selectedAddress) {
+      reset(selectedAddress);
+      if (selectedAddress.country) {
+        setValue("country", selectedAddress.country);
+      }
+      if (selectedAddress.state) {
+        setValue("state", selectedAddress.state);
+      }
+    }
+  }, [selectedAddress, reset, setValue]);
+
+  useEffect(() => {
+    const selected = countries.find((c) => c.name === watchedCountry);
+    if (selected) {
+      setCountryId(selected._id);
+    }
+  }, [watchedCountry, countries]);
 
   useEffect(() => {
     if (!isAddingNewAddress && selectedAddress) {
@@ -72,45 +113,53 @@ export default function ShippingDetailsForm({ addresses }) {
     }
   }, [selectedAddress, isAddingNewAddress, reset]);
 
+  useEffect(() => {
+    if (selectedAddress?.country && countries.length > 0) {
+      const country = countries.find((c) => c.name === selectedAddress.country);
+      if (country) setCountryId(country._id);
+    }
+  }, [selectedAddress, countries]);
+
   console.log("selectedAddress: ", selectedAddress);
-  
-  const onSubmit = async (data) => {
-    data.fullName = existingFormData?.name;
-    data.phone = existingFormData?.phone;
+
+  const onSubmit = async (data: ShippingAddress) => {
     console.log("data", data);
-    
+
     if (!shippingCost) {
       setShippingCostError(true);
       return;
     }
     setShippingCostError(false);
 
-    let shippingAddress = data;
     let shippingAddressId = selectedAddress?.shippingAddressId;
 
-    if (!data.shippingAddressId) {
-        const addressResult = await addAddress({
-          ...data,
-          defaultBilling: false,
-          defaultShipping: false,
-        }).unwrap();
-        console.log("Address Result: ", addressResult);
-        shippingAddress = addressResult?.addresses[0];
-        shippingAddressId = addressResult?.addresses[0]._id;
+    if (isAddingNewAddress || !shippingAddressId) {
+      const addressResult = await addAddress({
+        ...data,
+        fullName: existingFormData?.name,
+        phone: existingFormData?.phone,
+        defaultBilling: false,
+        defaultShipping: false,
+      }).unwrap();
+      shippingAddressId = addressResult?.addresses[0]._id;
     }
+
+    await refetch();
 
     dispatch(
       updateCheckoutFormData({
         shippingAddress: {
-          ...shippingAddress,
+          ...data,
+          fullName: existingFormData?.name,
+          phone: existingFormData?.phone,
           shippingAddressId,
         },
-        newAddedAddresses: data.shippingAddressId ? [] : [shippingAddress],
+        newAddedAddresses: shippingAddressId ? [] : [shippingAddress],
         shippingCost,
       })
     );
     console.log("Inner Current Step: ", currentStep);
-    
+
     dispatch(setCurrentStep(currentStep + 1));
   };
 
@@ -140,8 +189,8 @@ export default function ShippingDetailsForm({ addresses }) {
           >
             {addresses.map((addr) => (
               <MenuItem key={addr._id} value={addr._id}>
-                {addr.address1} {addr.address2}, {addr.city},
-                {addr.state}, {addr.postalCode}, {addr.country}
+                {addr.address1} {addr.address2}, {addr.city},{addr.state},{" "}
+                {addr.postalCode}, {addr.country}
               </MenuItem>
             ))}
           </TextField>
@@ -149,7 +198,18 @@ export default function ShippingDetailsForm({ addresses }) {
             variant="outlined"
             onClick={() => {
               setIsAddingNewAddress(true);
-              reset({});
+              setSelectedAddress({});
+              reset({
+                address1: "",
+                address2: "",
+                country: "",
+                state: "",
+                city: "",
+                postalCode: "",
+              });
+              setCountryId("");
+              setShippingCost(0);
+              setShippingCostError(false);
             }}
             className="mt-2"
           >
@@ -194,18 +254,37 @@ export default function ShippingDetailsForm({ addresses }) {
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
+              label="City"
+              fullWidth
+              {...register("city", { required: "Required" })}
+              error={!!errors.city}
+              helperText={errors.city?.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Postal Code"
+              fullWidth
+              {...register("postalCode", { required: "Required" })}
+              error={!!errors.postalCode}
+              helperText={errors.postalCode?.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
               label="Country"
               select
               fullWidth
               {...register("country", { required: "Required" })}
-              error={!!errors.country}
-              helperText={errors.country?.message}
+              value={watchedCountry || ""}
               onChange={(e) => {
                 const name = e.target.value;
-                const id   = countries.find(c => c.name === name)?._id;
-                setCountryId(id);
-                fieldOnChange(e);
+                setValue("country", name);
+                const id = countries.find((c) => c.name === name)?._id;
+                if (id) setCountryId(id);
               }}
+              error={!!errors.country}
+              helperText={errors.country?.message}
             >
               {countries.map((c) => (
                 <MenuItem key={c._id} value={c.name}>
@@ -214,12 +293,14 @@ export default function ShippingDetailsForm({ addresses }) {
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <TextField
               label="State"
               select
               fullWidth
               {...register("state", { required: "Required" })}
+              value={watchedState || ""}
+              onChange={(e) => setValue("state", e.target.value)}
               error={!!errors.state}
               helperText={errors.state?.message}
             >
@@ -230,24 +311,6 @@ export default function ShippingDetailsForm({ addresses }) {
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="City"
-              fullWidth
-              {...register("city", { required: "Required" })}
-              error={!!errors.city}
-              helperText={errors.city?.message}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Postal Code"
-              fullWidth
-              {...register("postalCode", { required: "Required" })}
-              error={!!errors.postalCode}
-              helperText={errors.postalCode?.message}
-            />
-          </Grid>
         </Grid>
 
         {/* Shipping Cost */}
@@ -257,7 +320,7 @@ export default function ShippingDetailsForm({ addresses }) {
             row
             name="shippingCost"
             value={shippingCost}
-            onChange={(e) => setShippingCost(e.target.value)}
+            onChange={(e) => setShippingCost(Number(e.target.value))}
           >
             <FormControlLabel
               value="8"
@@ -269,7 +332,7 @@ export default function ShippingDetailsForm({ addresses }) {
               }
             />
             <FormControlLabel
-              value="20"
+              value="16"
               control={<Radio />}
               label={
                 <span>
